@@ -111,8 +111,8 @@ if ($opt{p} eq "MRV" || $opt{p} eq "all"){
     }
     my $prefix = $opt{s}.".MRVs/";	
     my @SNPS;
-    my $null_tally_file = "null/ld_tally_r".$opt{r}.".txt";
-    open (SNPS, "<$null_tally_file") or die "$!\n";
+    my $null_tally_file = "data/ld_tally_r".$opt{r}.".txt.gz";
+    open (SNPS, "gunzip -c $null_tally_file |") or die "$!\n";
     while(<SNPS>){ 
 	chomp;
 	my @snp = split /\t/;
@@ -140,7 +140,7 @@ if ($opt{p} eq "MRV" || $opt{p} eq "all"){
     printLog("Saving LD block into memory");
     foreach my $i (1..22,"X","Y"){
 	printLog("chr$i");
-	open (IN, "<null/chr${i}.ld") or die;
+	open (IN, "gunzip -c data/chr${i}.ld.gz |") or die;
 	my $header=<IN>;
 	while (<IN>){
 	    chomp;
@@ -309,7 +309,7 @@ if ($opt{p} eq "R" || $opt{p} eq "all"){
 #     module load R/3.1.1
 
 #     echo -n "Generating boxplot"
-     my $Routput = `Rscript VSE.tmp.R $opt{s}.output/$opt{s}.VSE.txt $opt{s}.output/$opt{s}.final_boxplot.pdf | grep \"^\\[1\\]\" | sort -k8rn`;
+     my $Routput = `Rscript lib/stat.r $opt{s}.output/$opt{s}.VSE.txt $opt{s}.output/$opt{s}.final_boxplot.pdf | grep \"^\\[1\\]\" | sort -k8rn`;
     $Routput =~ s/\[1\]//g;
     print OUT $Routput;
 # 	perl -nle \'s/\/.*\// /g; s/\[1\]//g; print;\' > 
