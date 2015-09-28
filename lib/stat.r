@@ -1,18 +1,10 @@
 #!/usr/bin/Rscript
 
-# for fukutami #!/usr/bin/Rscript
-# for discovery #!/opt/R/2.13/bin/Rscript
-
 # THIS PROGRAM DRAWS VSE PLOTS WITH MATRICES (intersection heatmaps)
 
 args <- commandArgs(TRUE)
-#if( length(args) == 1 ){
-    ID <- args[1]
+ID <- args[1]
 PDFOUTPUT <- args[2]
-#} else {
-#    print( "VSE ID" )
-#    q( status = 0 )
-#}
 
 library(car)
 
