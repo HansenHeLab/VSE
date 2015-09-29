@@ -32,7 +32,7 @@ Example:
 chr1  1000  1001  rs00001
 ```
 ######The LD SNPs
-The list of LD SNPs should be a tab delimited bed file in the following format and should be provided with ```-l``` parameter. There should be no header line.
+The list of LD SNPs should be a tab delimited bed file in the following format and should be provided with ```-l``` parameter. There should be no header line. The LD SNPs must be calculated based on EUR population of 1000 Genome Project Phase III genotyping data (Release 2013/05). It's important to use the updated genotyping information for calculating LD because the newer releases are more accurant than the older ones because of inclusion of more individuals. However, for older studies, VSE will soon support Phase I data as well.
 ```
 chr1  900 901 LDSNPid tagSNPid other_optional_columns
 ```
@@ -69,4 +69,4 @@ This will output the overlapping tallies for AVS and MRVS for POL2 on the screen
 #####There are several factors to consider:
 1. VSE is sensitive to the number of tagSNPs. From our trial and error tests, too low number of tagSNPs (below 15) provide imprecise result.
 2. The quality of ChIP-seq data is very important. We recommend users to confirm the quality of the ChIP-seq data and to only use data that are of good quality to avoid false enrichment. There are tools like ChIPQC or Chillin for quality control of ChIP-seq data.
-3. Make sure that you use the same r2 cutoff that you used to determine your LD SNPs. Also, the LD SNPs must be calculated using 1000 Genome Project Phase III (May 2012) release.
+3. Make sure that you use the same r2 cutoff that you used to determine your LD SNPs. Also, the LD SNPs must be calculated using 1000 Genome Project Phase III (May 2013) release.
