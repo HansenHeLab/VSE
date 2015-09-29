@@ -4,7 +4,6 @@ use Getopt::Std;
 use Carp;
 use File::Slurp;
 use File::Basename;
-use DBI;
 use lib 'lib';
 use LDX_to_LDXI;
 use tally;
@@ -14,11 +13,9 @@ getopts('r:hvYf:l:s:d:p:n:A:', \%opt);
 
 sub usage
 {
-    print "This tool will generate MRVs\n";
-    print "usage: vse.sh -f snpListBed -s suffix -d dirLocation [-i shuffleNo] [-r r2Value] [-v y/n] [-Y y/n] | [-h]\n";
+    print "usage: vse.sh -f snpListBed -s suffix -d dirLocation [-r r2Value] [-v y/n] [-Y y/n] | [-h]\n";
     print "Options:\n";
-    print "-i[int]      No of shuffles; default: 100\n";
-    print "-r[float]    R2 value to find SNPs in LD; default: 0.8\n";
+    print "-r[0.6/0.7/0.8/0.9/1]    R2 value to find SNPs in LD. default: 0.8\n";
     print "-v[y/n]      Verbose; default: y\n";
     print "-Y[y/n]      To analyze chrY or not; default: n\n";
     print "-f[path]     Location of tagSNP list. The file must be a bed file\n";
@@ -26,7 +23,7 @@ sub usage
     print "-s[char]     Suffix for filenames\n";
     print "-d[path]     Path to feature directory\n";
     print "-A[char]     Suffix for AVS/MRV files. Only used when -p is xml in order to avoid having to generate AVS/MRV again.\n";
-    print "-p           Which part to run; default: all\n";
+    print "-p           [all/AVS/MRV/xml/R] Modular run; default: all\n";
     print "-n           No. of iteration; default: 100\n";
     print "-h           This message\n";
 }
@@ -39,22 +36,21 @@ sub printLog
     }
 }
 
-my $dbfile = "null/snpinfo.db";
-my $dsn      = "dbi:SQLite:dbname=$dbfile";
-my $user     = "";
-my $password = "";
-
+#----PARAMETERS-----------
 die usage if ($opt{h});
 $opt{n} = 100 if !$opt{n};
-die "parameter missing\n" if (!$opt{f} || !$opt{l} || !$opt{s} || !$opt{d});
 $opt{p} = "all" if !$opt{p};
 $opt{i} = 100 if !$opt{i};
 $opt{n} = 100 if !$opt{n};
 $opt{r} = 0.8 if !$opt{r};
-die "-r must be between 0.6 and 0.8\n" if $opt{r} <0.6 || $opt{r} > 0.8;
-#INPUT QC
-die "tagSNP file not found\n" if (! -e $opt{f});
-#checking feature locations
+#------------------------
+
+#-------INPUT QC---------
+die "-r must be between 0.6 and 0.8\n" if $opt{r} <0.6 || $opt{r} > 1;
+die "parameter missing\n" if (!$opt{f} || !$opt{l} || !$opt{s} || !$opt{d});
+die "$opt{f} file not found\n" if (! -e $opt{f});
+die "$opt{l} file not found\n" if (! -e $opt{l});
+
 if ($opt{d} =~ m/(bed|peak|gz)$/i){
     printLog("single bed file provided. Output will be printed on screen");
     die "$opt{d} could not be located\n" if (! -e $opt{d});
@@ -63,12 +59,14 @@ if ($opt{d} =~ m/(bed|peak|gz)$/i){
 	print "Directory path not found\n";
     }
 }
-#-------------------#
-
 my $totalTagSnp=`wc -l $opt{f} | cut -d " " -f 1`;
-
 print "$opt{f} does not have any snp\n" if ($totalTagSnp == 0);
+die "Unknown -p\n" if $opt{p} !~ m/(all|AVS|MRV|xml|R)/;
+my $totalColumnInLD = `awk '{print NF}' $opt{l} | sort -u | wc -l`;
+die "Column number is not 6 for all lines in $opt{l}\n" if $totalColumnInLD != 1;
+#------------------------
 
+#--------AVS-------------
 if ($opt{p} eq "AVS" || $opt{p} eq "all"){
     printLog("Preparing AVS file");
     mkdir $opt{s}.".AVS" if (! -d $opt{s}.".AVS" );
@@ -76,8 +74,11 @@ if ($opt{p} eq "AVS" || $opt{p} eq "all"){
     if (-e $AVS_out_file){ unlink $AVS_out_file; }
     my @lines = read_file($opt{f}, chomp => 1);
     die "$opt{f} looks empty\n" if scalar @lines == 0;
+    my $lineCounter = 1;
     foreach my $line (@lines){
 	my @f = split /\t/, $line;
+	my $totalColumns = $#f + 1;
+	die "Line $lineCounter has $totalColumns columns instead of 4 in $opt{f}\n" if $totalColumns < 3;
 	my $header= "# raSNP $f[3]\n";
 	write_file($AVS_out_file, {append=>1}, $header);
 	open (IN, "awk -v tag=$f[3] '\$5==tag' $opt{l} |") or die;
@@ -90,6 +91,7 @@ if ($opt{p} eq "AVS" || $opt{p} eq "all"){
 	    }
 	}
 	close IN;
+	$lineCounter++;
     }
     printLog("$AVS_out_file created");
 #Fixing tagSNP to LDXI and making tally
@@ -99,12 +101,10 @@ if ($opt{p} eq "AVS" || $opt{p} eq "all"){
     printLog("Tallying ".$opt{s}.".AVS/$opt{s}.LDXI.bed");
     tally($opt{s}.".AVS/$opt{s}.LDXI.bed",$opt{s}.".AVS/$opt{s}.LDXI.tally.txt");
     printLog($opt{s}.".AVS/$opt{s}.LDXI.tally.txt created.");
-    printLog("Generating LOD MRVs");
-    if ( ! -d "MRVs" ){
-	mkdir "MRVs";
-    }
 }
+#-------------------------------
 
+#------------MRV----------------
 if ($opt{p} eq "MRV" || $opt{p} eq "all"){
     if (! -d $opt{s}.".MRVs"){
 	mkdir $opt{s}.".MRVs";
@@ -112,6 +112,7 @@ if ($opt{p} eq "MRV" || $opt{p} eq "all"){
     my $prefix = $opt{s}.".MRVs/";	
     my @SNPS;
     my $null_tally_file = "data/ld_tally_r".$opt{r}.".txt.gz";
+    die "-r seems wrong!\n" if (!-e $null_tally_file);
     open (SNPS, "gunzip -c $null_tally_file |") or die "$!\n";
     while(<SNPS>){ 
 	chomp;
@@ -192,28 +193,16 @@ if ($opt{p} eq "MRV" || $opt{p} eq "all"){
 		my $e =$s+1;
 		print OUT "$c\t$s\t$e\n";
 	    }
-
-#	    $block->execute(${$SNPS[ $AV[$i] ] }[$r]);
-#	    while (my $ldsnps = $block->fetchrow_hashref){
-#		print "$ldsnps->{ld}\n";
-#		$sth->execute($ldsnps->{ld});
-#		while (my $row = $sth->fetchrow_hashref) {
-#		    my $e = $row->{pos}+1;
-#		    print OUT $row->{chr}."\t".$row->{pos}."\t$e\n";
-#		}
-#	    }
 	}
 	close OUT;
 	printLog("Done");
     }
-#    perl MRVSs.pl dat/ld_tally2.txt AVS/$opt{s}.LDXI.tally.txt $noOfShuffles
-#-----------------#
 }
+#-----------------------------
+
+#-----------xml---------------
 if ($opt{p} eq "xml" || $opt{p} eq "all" ){
     my %tally;
-#     mkdir $opt{s}/outputs/
-#     mkdir $opt{s}/jobscripts/
-#     mkdir $opt{s}/sh/
     my $AVSsuffix = $opt{A} ? $opt{A} : $opt{s}; #user can choose to use AVS/MRV files previously generated for new sets of beds	
     if ($opt{d} =~ m/(bed|peak|gz)$/i){
 	my $bedfile = $opt{d};
@@ -275,47 +264,15 @@ if ($opt{p} eq "xml" || $opt{p} eq "all" ){
 	close OUT;
     }
 }
-#     for bed in $opt{d}/*.bed; do
-# 	bedid=$(basename $bed ".bed");
-# 	echo -n '<VSE>' >$opt{s}/outputs/$opt{s}.$bedid.o
-# 	echo -n '<AVS>' >>$opt{s}/outputs/${s}.$bedid.o
-# 	tally=`perl LDX_v_BED.pl AVS/$opt{s}.LDXI.bed $bed | bash VSE_score.sh | wc -l`
-# 	printf " %2d" $tally >>$opt{s}/outputs/${s}.$bedid.o
-# 	echo "AVS done. $tally found."
-# 	echo -n '<\AVS>' >>$opt{s}/outputs/${s}.$bedid.o
-# 	echo -n '<MRVS>' >>$opt{s}/outputs/${s}.$bedid.o
-# 	for i in MRVs/*.txt; do 
-# 	    tally=`perl LDX_v_BED.pl $i $bed | bash VSE_score.sh | wc -l`
-# 	    printf " %2d" $tally >>$opt{s}/outputs/${s}.$bedid.o
-# 	    echo "$i done for $bedid. $tally found."
-# 	done
-# 	echo -n "<\MRVS>" >>$opt{s}/outputs/${s}.$bedid.o
-# 	echo -n "<BED>$bedid<\BED>" >>$opt{s}/outputs/${s}.$bedid.o
-# 	echo -n "<\VSE>" >>$opt{s}/outputs/${s}.$bedid.o
-#     done 
-#     echo "$bed finished"
-# fi
+#------------------------------
 
+#--------------R---------------
 if ($opt{p} eq "R" || $opt{p} eq "all"){
     open (OUT, ">", $opt{s}.".output/".$opt{s}.".VSE.stat.txt") or die;
     printLog("Generating boxplot");
-#     ls $opt{s}/outputs/${s}*.o | while read o; do
-# 	    cat $o | grep '<VSE>.*<\\VSE>'; # changed from grep -p to just grep
-#     done  > $opt{s}/outputs/xmloutput.xml
-
-#     cat $opt{s}/outputs/xmloutput.xml | \
-# 	perl -nle 's/<\\*(VSE|AVS|BED|MRVS)>/ /g; print;' | \
-# 	perl -nle 's/ +/\t/g; print;' > $opt{s}/outputs/${s}.VSE.txt
-#     module load R/3.1.1
-
-#     echo -n "Generating boxplot"
      my $Routput = `Rscript lib/stat.r $opt{s}.output/$opt{s}.VSE.txt $opt{s}.output/$opt{s}.final_boxplot.pdf | grep \"^\\[1\\]\" | sort -k8rn`;
     $Routput =~ s/\[1\]//g;
     print OUT $Routput;
-# 	perl -nle \'s/\/.*\// /g; s/\[1\]//g; print;\' > 
-# 	".$opt{s}.".output/".$opt{s}.".VSE.stats.txt");
-#     echo "...Summarized in $opt{s}/outputs/$opt{s}.VSE.stats.txt";
-#     echo "Done"
-# fi
     close OUT;
 }
+#-----------------------------
