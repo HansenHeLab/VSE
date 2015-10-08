@@ -18,6 +18,8 @@ matrixtxt.filename <- paste(SUFFIX,"matrix","txt",sep=".");
 matrixtxt.path <- paste(outputDir,matrixtxt.filename,sep="/");
 
 library(car)
+library(ggplot2)
+library(reshape)
 
 # Set normalization parameters:
 rald    <- 1     # 1 raSNPs / 2 ldSNPs
@@ -35,7 +37,7 @@ plot_matrix <- TRUE
 plot_scale  <- FALSE
 
 x <- read.table( VSEtxt.path, as.is = TRUE )
-colnames(x) <- c( "AVS", sprintf( "%04d", 0:99), "BED") # WAS 0:999 ORIGINALLY
+colnames(x) <- c( "AVS", sprintf( "%04d", 0:99), "BED")
 
 N <- dim(x)[1]
 gray <- "gray30"
@@ -66,14 +68,20 @@ for (n in 1:N){
 }
 dev.off()
 
-if (plot_matrix){
-   pdf(matrix.path);
-   mat <- read.table(matrixtxt.path, header=TRUE, sep="\t");
-   row.names(mat)<-mat[,1];
-   mat2 <- mat[,-1];
-   heatmap(as.matrix(mat2), col=c("white", "gray"), Rowv=NA, Colv=NA, scale="none", pch=0.5);
-   dev.off();
-}
+   pdf(matrix.path)
+   mat <- read.table(matrixtxt.path, header=TRUE, sep="\t")
+   row.names(mat)<-mat[,1]
+   mat2 <- mat[,-1]
+   mat.m <- melt(as.matrix(mat2))
+   ggplot(mat.m, aes(X2,X1)) +
+   geom_tile(aes(fill=value), colour="grey20") + 
+   scale_fill_gradient(low="white", high="red") + 
+   theme_grey(base_size=9) + 
+   labs(x="",y="")  + 
+   theme(legend.position=0, axis.ticks=element_blank(), axis.text.x=element_text(size = 9 * 0.7, angle=-90, hjust=0, colour="black"), axis.text.y=element_text(size=9, angle=0, hjust=0, colour="black")) + 
+   coord_fixed(ratio=1.9)
+   dev.off()
+
 
 # SD values of p-values
 
