@@ -108,7 +108,7 @@ die "Unknown -p\n" if $opt{p} !~ m/(all|AVS|MRV|xml|R)/;
 my $totalColumnInLD = `awk '{print NF}' $opt{l} | sort -u | wc -l`;
 die "Column number is not 6 for all lines in $opt{l}\n" if $totalColumnInLD != 1;
 
-if ($opt{A}){ #if predefined AVS/MRVs set is provided
+if ($opt{A} && $opt{p} ne "R"){ #if predefined AVS/MRVs set is provided
     my $LDXfile = $AVSsuffix.".AVS/".$AVSsuffix.".LDX.bed";
     die "$LDXfile not found. Please check if -A parameter is correct. If problem persists, run the -p AVS again. Exiting.\n" if (! -e $LDXfile);
     my $LDXIfile = $AVSsuffix.".AVS/".$AVSsuffix.".LDXI.bed";
