@@ -1,9 +1,7 @@
 #!/usr/bin/perl -w
 use strict;
 use Getopt::Std;
-use Carp;
 use Cwd 'abs_path';
-use File::Slurp;
 use File::Basename;
 use FindBin qw($Bin);
 use lib "$Bin/lib";
