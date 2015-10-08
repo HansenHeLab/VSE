@@ -2,17 +2,23 @@
 VSE is a tool to calculate the enrichment of associated variant set (AVS) for an array of genomic regions.
 
 Program requirement:
+
 Perl (5.18 or higher)
 R (3.1.1 or higher)
 bedtools (2.2.4 or higher) and must be globally executable
 
 Perl module required:
+
 File::Basename
 
 R package required:
+
 ggplot2
 reshape
 car
+
+#####Installation:
+You can just download and run VSE.pl, no other installation required if you have the required programs already installed. The directory structure must be intact; i.e., ```lib``` and ```data``` directories must reside in the same directory as ```VSE.pl```.
 
 #####Example command:
 ```
