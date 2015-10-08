@@ -3,8 +3,19 @@
 # THIS PROGRAM DRAWS VSE PLOTS WITH MATRICES (intersection heatmaps)
 
 args <- commandArgs(TRUE)
-ID <- args[1]
-PDFOUTPUT <- args[2]
+SUFFIX <- args[1]
+
+outputDir <- paste(SUFFIX,"output", sep=".");
+VSEtxt.filename <- paste(SUFFIX,"VSE","txt", sep=".");
+VSEtxt.path <- paste(outputDir,VSEtxt.filename, sep="/");
+boxplotOutput.filename <- paste(SUFFIX,"final_boxplot","pdf",sep=".");
+boxplotOutput.path <- paste(outputDir,boxplotOutput.filename, sep="/");
+density.filename <- paste(SUFFIX,"density","pdf", sep=".");
+density.path <- paste(outputDir,density.filename,sep="/");
+matrix.filename <- paste(SUFFIX, "matrix","pdf",sep=".");
+matrix.path <- paste(outputDir,matrix.filename, sep="/");
+matrixtxt.filename <- paste(SUFFIX,"matrix","txt",sep=".");
+matrixtxt.path <- paste(outputDir,matrixtxt.filename,sep="/");
 
 library(car)
 
@@ -20,10 +31,10 @@ null_size <- 100 # WAS 1000 ORIGINALLY
 
 # Set graphing parameters:
 load_names  <- TRUE
-plot_matrix <- FALSE
+plot_matrix <- TRUE
 plot_scale  <- FALSE
 
-x <- read.table( ID, as.is = TRUE )
+x <- read.table( VSEtxt.path, as.is = TRUE )
 colnames(x) <- c( "AVS", sprintf( "%04d", 0:99), "BED") # WAS 0:999 ORIGINALLY
 
 N <- dim(x)[1]
@@ -45,7 +56,7 @@ names <- x[["BED"]]
 names <- gsub( "\\/.*\\/", "", names, perl = TRUE)
 names <- sprintf( "%-15s", names)
 
-pdf( paste( ID, "_density.pdf", sep = ""), height=3, width=3.5, pointsize=10)
+pdf(density.path, height=3, width=3.5, pointsize=10)
 for (n in 1:N){
   par(mar=c(4,4,2,1))
     #hist(null_all[,n], main=names[n], xlab="Overlaps", ylab="Frequency", xlim=c(0,maxVal[,n]+3))
@@ -54,6 +65,15 @@ for (n in 1:N){
  #   text(rav_all[,n], 5, labels = names[n],col = "red" )
 }
 dev.off()
+
+if (plot_matrix){
+   pdf(matrix.path);
+   mat <- read.table(matrixtxt.path, header=TRUE, sep="\t");
+   row.names(mat)<-mat[,1];
+   mat2 <- mat[,-1];
+   heatmap(as.matrix(mat2), col=c("white", "gray"), Rowv=NA, Colv=NA, scale="none", pch=0.5);
+   dev.off();
+}
 
 # SD values of p-values
 
@@ -179,7 +199,7 @@ nonor_dune <-    nonor[,on]
 min <- min( c( nulls[!nulls == "NaN"] ) )
 max <- max( c( ravs[!ravs == "NaN"] ) )
 
-pdf(PDFOUTPUT)
+pdf(boxplotOutput.path)
 mar.orig <- par()$mar # save the original values
 par(mar = c(20,4,4,4)) # set your new values
 boxplot(as.data.frame(null_dune), 

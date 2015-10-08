@@ -2,15 +2,18 @@
 use strict;
 use Getopt::Std;
 use Carp;
+use Cwd 'abs_path';
 use File::Slurp;
 use File::Basename;
-use lib 'lib';
+use FindBin qw($Bin);
+use lib "$Bin/lib";
 use LDX_to_LDXI;
 use tally;
 use LDX_v_bed;
 my %opt;
 getopts('r:hvYf:l:s:d:p:n:A:', \%opt);
 
+#----------subroutines---------------
 sub usage
 {
     print "usage: vse.sh -f snpListBed -s suffix -d dirLocation [-r r2Value] [-v y/n] [-Y y/n] | [-h]\n";
@@ -36,6 +39,42 @@ sub printLog
     }
 }
 
+sub removeExtension
+{
+    my $name = shift;
+    my @bedfileName_arr = split /\./, $name;
+    my $bedfileName = $bedfileName_arr[0];
+    return $bedfileName;
+}
+
+sub loadTagSNPs
+{
+    my $AVSsuffix = shift;
+    my $AVSLDX = $AVSsuffix.".AVS/".$AVSsuffix.".LDX.bed";
+    my @tagSNPs;
+    open (HIN, "grep \"#\" $AVSLDX | cut -d \" \" -f 3 |") or die "Could not open $AVSLDX file: $!\n";
+    while (<HIN>){
+        chomp;
+        push (@tagSNPs, $_);
+    }
+    close HIN;
+    return \@tagSNPs;
+}
+
+sub loadFileIntoArray
+{
+    my $file = shift;
+    my @lines;
+    open (INF, "<$file") or die "Could not open $file: $!\n";
+    while (<INF>){
+	chomp;
+	push @lines, $_;
+    }
+    close INF;
+    return \@lines;
+}
+#-------------------------
+
 #----PARAMETERS-----------
 die usage if ($opt{h});
 $opt{n} = 100 if !$opt{n};
@@ -43,6 +82,10 @@ $opt{p} = "all" if !$opt{p};
 $opt{i} = 100 if !$opt{i};
 $opt{n} = 100 if !$opt{n};
 $opt{r} = 0.8 if !$opt{r};
+my $AVSsuffix = $opt{A} ? $opt{A} : $opt{s}; #user can choose to use AVS/MRV files previously generated for new sets of beds
+my $scriptPath = abs_path($0);
+my $scriptDir = dirname($scriptPath);
+printLog("Script location: $scriptDir");
 #------------------------
 
 #-------INPUT QC---------
@@ -64,6 +107,23 @@ print "$opt{f} does not have any snp\n" if ($totalTagSnp == 0);
 die "Unknown -p\n" if $opt{p} !~ m/(all|AVS|MRV|xml|R)/;
 my $totalColumnInLD = `awk '{print NF}' $opt{l} | sort -u | wc -l`;
 die "Column number is not 6 for all lines in $opt{l}\n" if $totalColumnInLD != 1;
+
+if ($opt{A}){ #if predefined AVS/MRVs set is provided
+    my $LDXfile = $AVSsuffix.".AVS/".$AVSsuffix.".LDX.bed";
+    die "$LDXfile not found. Please check if -A parameter is correct. If problem persists, run the -p AVS again. Exiting.\n" if (! -e $LDXfile);
+    my $LDXIfile = $AVSsuffix.".AVS/".$AVSsuffix.".LDXI.bed";
+    die "$LDXIfile not found. Please check if -A parameter is correct. If problem persists, run the -p AVS again. Exiting.\n" if (! -e $LDXIfile);
+    my $LDXItallyfile = $AVSsuffix.".AVS/".$AVSsuffix.".LDXI.tally.txt";
+    die "$LDXItallyfile not found. Please check if -A parameter is correct. If problem persists, run the -p AVS again. Exiting.\n" if (! -e $LDXItallyfile);
+    if ($opt{p} eq "xml"){
+	my $MRVSdir = $AVSsuffix.".MRVs/";
+	die "$MRVSdir not found. Please check if -A parameter is correct. If problem persists, run the -p MRV again. Exiting.\n" if (! -d $MRVSdir);
+	opendir my $dh, $MRVSdir or die "Can't opendir '$MRVSdir': $!";
+	my $file_count = scalar grep { -f "$MRVSdir/$_" } readdir $dh;
+	closedir $dh or die "Can't closedir: $!";
+	die "Number of MRVS found $file_count, but expected 100\n" if ($file_count !=100);
+    }
+}
 #------------------------
 
 #--------AVS-------------
@@ -72,27 +132,29 @@ if ($opt{p} eq "AVS" || $opt{p} eq "all"){
     mkdir $opt{s}.".AVS" if (! -d $opt{s}.".AVS" );
     my $AVS_out_file = $opt{s}.".AVS/".$opt{s}.".LDX.bed";
     if (-e $AVS_out_file){ unlink $AVS_out_file; }
-    my @lines = read_file($opt{f}, chomp => 1);
-    die "$opt{f} looks empty\n" if scalar @lines == 0;
+    my $lines = loadFileIntoArray($opt{f});
+    die "$opt{f} looks empty\n" if scalar @$lines == 0;
     my $lineCounter = 1;
-    foreach my $line (@lines){
+    open (OUT, ">$AVS_out_file") or die "Count not open $AVS_out_file for writing: $!\n";
+    foreach my $line (@$lines){
 	my @f = split /\t/, $line;
 	my $totalColumns = $#f + 1;
 	die "Line $lineCounter has $totalColumns columns instead of 4 in $opt{f}\n" if $totalColumns < 3;
 	my $header= "# raSNP $f[3]\n";
-	write_file($AVS_out_file, {append=>1}, $header);
+	print OUT $header;
 	open (IN, "awk -v tag=$f[3] '\$5==tag' $opt{l} |") or die;
 	while (<IN>){
 	    chomp;
 	    my @g = split /\t/;
 	    if ($g[4] ne $g[3]){
 		my $printline = "$g[0]\t$g[1]\t$g[2]\n";
-		write_file($AVS_out_file, {append=>1}, $printline);
+		print OUT $printline;
 	    }
 	}
 	close IN;
 	$lineCounter++;
     }
+    close OUT;
     printLog("$AVS_out_file created");
 #Fixing tagSNP to LDXI and making tally
     printLog("Generating LDXI for AVS/$opt{s}.LDX.bed");
@@ -106,12 +168,13 @@ if ($opt{p} eq "AVS" || $opt{p} eq "all"){
 
 #------------MRV----------------
 if ($opt{p} eq "MRV" || $opt{p} eq "all"){
-    if (! -d $opt{s}.".MRVs"){
-	mkdir $opt{s}.".MRVs";
+    my $AVSsuffix = $opt{A} ? $opt{A} : $opt{s}; #user can choose to use AVS/MRV files previously generated for new sets of beds
+    if (! -d $AVSsuffix.".MRVs"){
+	mkdir $AVSsuffix.".MRVs";
     }
-    my $prefix = $opt{s}.".MRVs/";	
+    my $prefix = $AVSsuffix.".MRVs/";	
     my @SNPS;
-    my $null_tally_file = "data/ld_tally_r".$opt{r}.".txt.gz";
+    my $null_tally_file = $scriptDir."/data/ld_tally_r".$opt{r}.".txt.gz";
     die "-r seems wrong!\n" if (!-e $null_tally_file);
     open (SNPS, "gunzip -c $null_tally_file |") or die "$!\n";
     while(<SNPS>){ 
@@ -123,7 +186,7 @@ if ($opt{p} eq "MRV" || $opt{p} eq "all"){
     close SNPS;
     my @AV;
     my @RA;
-    open (AV, "<", $opt{s}.".AVS/".$opt{s}.".LDXI.tally.txt") or die "$!\n";
+    open (AV, "<", $AVSsuffix.".AVS/".$AVSsuffix.".LDXI.tally.txt") or die "$!\n";
     while (<AV>){
 	chomp;
 	print "$_\n" if eof(AV);
@@ -141,7 +204,7 @@ if ($opt{p} eq "MRV" || $opt{p} eq "all"){
     printLog("Saving LD block into memory");
     foreach my $i (1..22,"X","Y"){
 	printLog("chr$i");
-	open (IN, "gunzip -c data/chr${i}.ld.gz |") or die;
+	open (IN, "gunzip -c $scriptDir/data/chr${i}.ld.gz |") or die;
 	my $header=<IN>;
 	while (<IN>){
 	    chomp;
@@ -160,27 +223,20 @@ if ($opt{p} eq "MRV" || $opt{p} eq "all"){
     }
     printLog("Writing MRVs in $prefix");
     foreach my $n (0..($opt{n}-1)){
-	my $file = $prefix.$opt{s}."_".sprintf("%04d",$n).".MRVS.txt";
+	my $file = $prefix.$AVSsuffix."_".sprintf("%04d",$n).".MRVS.txt";
 	printLog("Generating $file");
 	open (OUT, ">$file") or die;
 	foreach my $i (0..$#AV){
 	    if ($#{$SNPS[$AV[$i]]} < 1){
 		$AV[$i]-=1 until $#{$SNPS[$AV[$i]]} > 1;
 	    }
-#	    print "i: $i\t$AV[$i]\t\$\#SNPS[AV[i]]:".$#{$SNPS[$AV[$i]]}."\n";
 	    my $r = int(rand( $#{ $SNPS[ $AV[$i]] } + 1));
 	    my ($LDchr,$LDpos) = ${ $SNPS[ $AV[$i] ] }[$r] =~ m/:/ ? split /:/, ${ $SNPS[ $AV[$i] ] }[$r] : die ${ $SNPS[ $AV[$i] ] }[$r];
 	    if (!exists $blocks{$LDchr}->{${ $SNPS[ $AV[$i]] }[$r]}){
 		printLog(${$SNPS[$AV[$i]]}[$r]." does not exists in block\n");
 		$r = int(rand( $#{ $SNPS[ $AV[$i]] } + 1)) until (exists $blocks{$LDchr}->{${ $SNPS[ $AV[$i]] }[$r]});
-#		print "r changed to $r now\n";
 	    }
-#	    print "r: $r\t".${$SNPS[$AV[$i]]}[$r]."\n";
-	    
-#	    print ${$SNPS[$AV[$i]]}[$r]."\n";		    
 	    print OUT "# raSNP ".$RA[ $i ]."\n";
-	    
-#	    print STDERR $RA[$i]."\t".${ $SNPS[ $AV[$i] ] }[$r]."\n" if (!exists $blocks{${ $SNPS[ $AV[$i] ] }[$r]});
 	    if ($blocks{$LDchr}->{${$SNPS[$AV[$i]]}[$r]} =~ m/,/){
 		my @LDsnps = split /,/,$blocks{$LDchr}->{${ $SNPS[ $AV[$i]] }[$r]};
 		foreach my $LDsnp (@LDsnps){
@@ -203,17 +259,25 @@ if ($opt{p} eq "MRV" || $opt{p} eq "all"){
 #-----------xml---------------
 if ($opt{p} eq "xml" || $opt{p} eq "all" ){
     my %tally;
-    my $AVSsuffix = $opt{A} ? $opt{A} : $opt{s}; #user can choose to use AVS/MRV files previously generated for new sets of beds	
-    if ($opt{d} =~ m/(bed|peak|gz)$/i){
+    my %heatmap;
+    my $AVSsuffix = $opt{A} ? $opt{A} : $opt{s}; #user can choose to use AVS/MRV files previously generated for new sets of beds
+    my $LDXfile = $AVSsuffix.".AVS/".$AVSsuffix.".LDX.bed";
+    my $LDXIfile = $AVSsuffix.".AVS/".$AVSsuffix.".LDXI.bed";
+    my $tagSNPs = loadTagSNPs($AVSsuffix);
+    if ($opt{d} =~ m/(bed|peak|gz)$/i){ #single annotation provided
 	my $bedfile = $opt{d};
 	die "Is the bed file zipped?\n" if $bedfile =~ m/(gz|zip|tar)$/;
 	printLog("Reading $bedfile");
-        my $tally = LDX_v_bed($AVSsuffix.".AVS/".$AVSsuffix.".LDXI.bed", $bedfile   );
+        my $tally = LDX_v_bed($LDXIfile, $bedfile); #count tally for enrichment and density plot
         $tally{$bedfile}->{'AVS'} = $tally;
+	my $LDX_overlap = heatmap_intersect($LDXfile, $bedfile); #check overlapping status for each risk locus
+	foreach my $tagSNP (@$tagSNPs){
+	    $heatmap{$bedfile}->{$tagSNP} = exists $LDX_overlap->{$tagSNP} ? 1 : 0;
+	}
         opendir (MRVdir, $AVSsuffix.".MRVs") or die "Error in opening dir $AVSsuffix.MRVs\n";
         while (my $mrvfile = readdir(MRVdir)){
             next if ($mrvfile !~ m/txt$/i);
-            printLog("Reading $mrvfile");
+  #          printLog("Reading $mrvfile");
             my $tally = LDX_v_bed($AVSsuffix.".MRVs/".$mrvfile, $bedfile    );
             $tally{$bedfile}->{$mrvfile} = $tally;
         }
@@ -224,21 +288,24 @@ if ($opt{p} eq "xml" || $opt{p} eq "all" ){
 		next if $mrv eq "AVS";
 		print "\t".$tally{$bed}->{$mrv};
 	    }
-	    my @bedfileName_arr = split /\./, $bed;
-	    my $bedfileName = $bedfileName_arr[0];
+	    my $bedfileName = removeExtension($bedfile);
 	    print "\t".$bedfileName."\n";
 	}
     } else {
 	opendir (DIR, $opt{d}) or die "Error in opening dir $opt{d}\n";
 	while (my $bedfile= readdir(DIR)){
 	    next if ($bedfile !~ m/bed$/i && $bedfile !~ m/peak$/i);
-	    printLog("Reading $bedfile");
-	    my $tally = LDX_v_bed($AVSsuffix.".AVS/".$AVSsuffix.".LDXI.bed", $opt{d}."/".$bedfile	);
+	    printLog("Reading $opt{d}/$bedfile");
+	    my $tally = LDX_v_bed($LDXIfile, $opt{d}."/".$bedfile);
 	    $tally{$bedfile}->{'AVS'} = $tally;
+	    my $LDX_overlap = heatmap_intersect($LDXfile, $opt{d}."/".$bedfile); #check overlapping status for each risk locus
+	    foreach my $tagSNP (@$tagSNPs){
+		$heatmap{$bedfile}->{$tagSNP} = exists $LDX_overlap->{$tagSNP} ? 1 : 0;
+	    }
 	    opendir (MRVdir, $AVSsuffix.".MRVs") or die "Error in opening dir $AVSsuffix.MRVs\n";
 	    while (my $mrvfile = readdir(MRVdir)){
 		next if ($mrvfile !~ m/txt$/i);
-		printLog("Reading $mrvfile");
+#		printLog("Reading $mrvfile");
 		my $tally = LDX_v_bed($AVSsuffix.".MRVs/".$mrvfile, $opt{d}."/".$bedfile	);
 		$tally{$bedfile}->{$mrvfile} = $tally;
 	    }
@@ -255,22 +322,35 @@ if ($opt{p} eq "xml" || $opt{p} eq "all" ){
 		next if $mrv eq "AVS";
 		print OUT "\t".$tally{$bed}->{$mrv};
 	    }
-	    print STDERR $bed."\t";
-	    my @bedfileName_arr = split /\./, $bed;
-	    my $bedfileName = $bedfileName_arr[0];
+	    my $bedfileName = removeExtension($bed);
 	    print OUT "\t".$bedfileName."\n";
-	    print STDERR "\t".$bedfileName."\n";
 	}
 	close OUT;
     }
+    open (OUT, ">", $opt{s}.".output/".$opt{s}.".matrix.txt") or die;
+    print OUT "Annotation";
+    for my $tagSNP (@$tagSNPs){
+	print OUT "\t$tagSNP";
+    }
+    print OUT "\n";
+    foreach my $bedName (keys %heatmap){
+	my $bedfileName = removeExtension($bedName);
+	print OUT $bedfileName;
+	for my $tagSNP (@$tagSNPs){
+	    print OUT "\t".$heatmap{$bedName}->{$tagSNP};
+	}
+	print OUT "\n";
+    }
+    close OUT;
 }
 #------------------------------
 
 #--------------R---------------
 if ($opt{p} eq "R" || $opt{p} eq "all"){
-    open (OUT, ">", $opt{s}.".output/".$opt{s}.".VSE.stat.txt") or die;
+    my $AVSsuffix = $opt{A} ? $opt{A} : $opt{s}; #user can choose to use AVS/MRV files previously generated for new sets of beds
+    open (OUT, ">", $AVSsuffix.".output/".$AVSsuffix.".VSE.stat.txt") or die;
     printLog("Generating boxplot");
-     my $Routput = `Rscript lib/stat.r $opt{s}.output/$opt{s}.VSE.txt $opt{s}.output/$opt{s}.final_boxplot.pdf | grep \"^\\[1\\]\" | sort -k8rn`;
+     my $Routput = `Rscript $scriptDir/lib/stat.r $AVSsuffix | grep \"^\\[1\\]\" | sort -k8rn`;
     $Routput =~ s/\[1\]//g;
     print OUT $Routput;
     close OUT;
