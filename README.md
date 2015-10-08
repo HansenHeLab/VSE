@@ -4,6 +4,15 @@ VSE is a tool to calculate the enrichment of associated variant set (AVS) for an
 Program requirement:
 Perl (5.18 or higher)
 R (3.1.1 or higher)
+bedtools (2.2.4 or higher) and must be globally executable
+
+Perl module required:
+File::Basename
+
+R package required:
+ggplot2
+reshape
+car
 
 #####Example command:
 ```
@@ -43,11 +52,13 @@ The genomic regions should be a single directory and the directory path should b
 ####Output
 VSE produces multiple output files in suffix.output directory.
 
-```suffix_density.pdf``` shows the density of overlapping tallies from the null
+```suffix.density.pdf``` shows the density of overlapping tallies from the null
 
 ```suffix.VSE.stat.txt``` contains the statistics table
 
-```suffix.final_boxplot.pdf``` visualizes the final enrichment plot
+```suffix.final_boxplot.pdf``` visualizes the null distribution and enrichment of AVS
+
+```suffix.matrix.pdf``` binary representation of overlapping between each locus and annotation. Overlapping is defined as at least one SNP (associated or linked) is within the annotation.
 
 ```suffix.VSE.txt``` is a matrix of all overlapping tallies by AVS and MRVS. The first column is the AVS tally and the rest are MRVS.
 
