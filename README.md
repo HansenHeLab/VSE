@@ -22,7 +22,7 @@ You can just download and run VSE.pl, no other installation required if you have
 
 #####Example command:
 ```
-perl VSE.pl -f snpListBed -l LDlist -s suffix -d dirLocation
+perl VSE.pl -f snpListBed -l LDlist -s suffix -d dirLocation -v
 ```
 
 #####Options:
@@ -32,10 +32,10 @@ perl VSE.pl -f snpListBed -l LDlist -s suffix -d dirLocation
 -d full path to directory containing all bed files or path to a single bed file
 -s output directory suffix. Output files will be saved in suffix.output directory
 -r [0.6/0.7/0.8/0.9/1] r2 value; default 0.8
--v verbose
 -p [all/AVS/MRV/xml/R] modular run; default all
 -A Suffix for existing AVS/MRV files. Only functional when -p is xml.
 -h help
+-v verbose
 ```
 ####Input
 VSE requires three input files.
