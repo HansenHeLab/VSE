@@ -9,7 +9,7 @@ use LDX_to_LDXI;
 use tally;
 use LDX_v_bed;
 my %opt;
-getopts('r:hvYf:l:s:d:p:n:A:', \%opt);
+getopts('r:hvf:l:s:d:p:n:A:', \%opt);
 
 #----------subroutines---------------
 sub usage
@@ -17,8 +17,7 @@ sub usage
     print "usage: vse.sh -f snpListBed -s suffix -d dirLocation [-r r2Value] [-v y/n] [-Y y/n] | [-h]\n";
     print "Options:\n";
     print "-r[0.6/0.7/0.8/0.9/1]    R2 value to find SNPs in LD. default: 0.8\n";
-    print "-v[y/n]      Verbose; default: y\n";
-    print "-Y[y/n]      To analyze chrY or not; default: n\n";
+    print "-v           Verbose\n";
     print "-f[path]     Location of tagSNP list. The file must be a bed file\n";
     print "-l[path]     Location of LD snp list. Must be in this format: chr\ts\te\tldSNP\ttagSNP\n";
     print "-s[char]     Suffix for filenames\n";
