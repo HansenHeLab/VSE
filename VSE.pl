@@ -262,6 +262,9 @@ if ($opt{p} eq "xml" || $opt{p} eq "all" ){
     my $LDXfile = $AVSsuffix.".AVS/".$AVSsuffix.".LDX.bed";
     my $LDXIfile = $AVSsuffix.".AVS/".$AVSsuffix.".LDXI.bed";
     my $tagSNPs = loadTagSNPs($AVSsuffix);
+    if (! -d $opt{s}.".output"){
+	    mkdir $opt{s}.".output";
+	}
     if ($opt{d} =~ m/(bed|peak|gz)$/i){ #single annotation provided
 	my $bedfile = $opt{d};
 	die "Is the bed file zipped?\n" if $bedfile =~ m/(gz|zip|tar)$/;
@@ -310,9 +313,6 @@ if ($opt{p} eq "xml" || $opt{p} eq "all" ){
 	    closedir (MRVdir);
 	}
 	closedir (DIR);
-	if (! -d $opt{s}.".output"){
-	    mkdir $opt{s}.".output";
-	}
 	open (OUT, ">", $opt{s}.".output/".$opt{s}.".VSE.txt") or die;
 	foreach my $bed ( keys %tally){
 	    print OUT $tally{$bed}->{'AVS'};
@@ -325,7 +325,7 @@ if ($opt{p} eq "xml" || $opt{p} eq "all" ){
 	}
 	close OUT;
     }
-    open (OUT, ">", $opt{s}.".output/".$opt{s}.".matrix.txt") or die;
+    open (OUT, ">", $opt{s}.".output/".$opt{s}.".matrix.txt") or die "Could not open ".$opt{s}.".output/".$opt{s}.".matrix.txt: $!\n";
     print OUT "Annotation";
     for my $tagSNP (@$tagSNPs){
 	print OUT "\t$tagSNP";
