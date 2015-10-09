@@ -94,7 +94,7 @@ die "$opt{l} file not found\n" if (! -e $opt{l});
 
 if ($opt{d} =~ m/(bed|peak|gz)$/i){
     printLog("single bed file provided. Output will be printed on screen");
-    die "$opt{d} could not be located\n" if (! -e $opt{d});
+    die "$opt{d} could not be located\n" if (! -e $opt{d});	
 } else {
     if (! -d $opt{d}){
 	print "Directory path not found\n";
@@ -200,7 +200,7 @@ if ($opt{p} eq "MRV" || $opt{p} eq "all"){
     close AV;
     my %blocks;
     printLog("Saving LD block into memory");
-    foreach my $i (1..22,"X","Y"){
+v    foreach my $i (1..22,"X","Y"){
 	printLog("chr$i");
 	open (IN, "gunzip -c $scriptDir/data/chr${i}.ld.gz |") or die;
 	my $header=<IN>;
@@ -340,6 +340,7 @@ if ($opt{p} eq "xml" || $opt{p} eq "all" ){
 	print OUT "\n";
     }
     close OUT;
+    die "Statistics not possible because only annotation file provided. Exiting.\n" if (! -d $opt{d} && $opt{p} eq "all");
 }
 #------------------------------
 
