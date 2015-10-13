@@ -100,7 +100,7 @@ if ($opt{d} =~ m/(bed|peak|gz)$/i){
     }
 }
 my $totalTagSnp=`wc -l $opt{f} | cut -d " " -f 1`;
-print "$opt{f} does not have any snp\n" if ($totalTagSnp == 0);
+die "$opt{f} does not have any snp\n" if ($totalTagSnp == 0);
 die "Unknown -p\n" if $opt{p} !~ m/(all|AVS|MRV|xml|R)/;
 my $totalColumnInLD = `awk '{print NF}' $opt{l} | sort -u | wc -l`;
 die "Column number is not 6 for all lines in $opt{l}\n" if $totalColumnInLD != 1;
@@ -187,7 +187,7 @@ if ($opt{p} eq "MRV" || $opt{p} eq "all"){
     while (<AV>){
 	chomp;
 	print "$_\n" if eof(AV);
-	my @snp = split/ /;
+	#my @snp = split/ /;
 	push @AV, $snp[1];
 	push @RA, $snp[0];
 	foreach my $i (0..$#{ $SNPS[ $snp[1] ] }){
@@ -199,7 +199,7 @@ if ($opt{p} eq "MRV" || $opt{p} eq "all"){
     close AV;
     my %blocks;
     printLog("Saving LD block into memory");
-v    foreach my $i (1..22,"X","Y"){
+    foreach my $i (1..22,"X","Y"){
 	printLog("chr$i");
 	open (IN, "gunzip -c $scriptDir/data/chr${i}.ld.gz |") or die;
 	my $header=<IN>;
@@ -228,21 +228,21 @@ v    foreach my $i (1..22,"X","Y"){
 		$AV[$i]-=1 until $#{$SNPS[$AV[$i]]} > 1;
 	    }
 	    my $r = int(rand( $#{ $SNPS[ $AV[$i]] } + 1));
-	    my ($LDchr,$LDpos) = ${ $SNPS[ $AV[$i] ] }[$r] =~ m/:/ ? split /:/, ${ $SNPS[ $AV[$i] ] }[$r] : die ${ $SNPS[ $AV[$i] ] }[$r];
+	    my ($LDchr,$LDpos) = ${ $SNPS[ $AV[$i] ] }[$r] =~ m/:/ ? split (/:/, ${ $SNPS[ $AV[$i] ] }[$r] : die ${ $SNPS[ $AV[$i] ] }[$r]);
 	    if (!exists $blocks{$LDchr}->{${ $SNPS[ $AV[$i]] }[$r]}){
 		printLog(${$SNPS[$AV[$i]]}[$r]." does not exists in block\n");
 		$r = int(rand( $#{ $SNPS[ $AV[$i]] } + 1)) until (exists $blocks{$LDchr}->{${ $SNPS[ $AV[$i]] }[$r]});
 	    }
 	    print OUT "# raSNP ".$RA[ $i ]."\n";
 	    if ($blocks{$LDchr}->{${$SNPS[$AV[$i]]}[$r]} =~ m/,/){
-		my @LDsnps = split /,/,$blocks{$LDchr}->{${ $SNPS[ $AV[$i]] }[$r]};
+		my @LDsnps = split (/,/,$blocks{$LDchr}->{${ $SNPS[ $AV[$i]] }[$r]});
 		foreach my $LDsnp (@LDsnps){
-		    my ($c,$s) = split /:/, $LDsnp;
+		    my ($c,$s) = split (/:/, $LDsnp);
 		    my $e = $s+1;
 		    print OUT "$c\t$s\t$e\n";
 		}
 	    } else {
-		my ($c,$s) = split /:/,$blocks{$LDchr}->{${ $SNPS[ $AV[$i] ] }[$r]};
+		my ($c,$s) = split (/:/,$blocks{$LDchr}->{${ $SNPS[ $AV[$i] ] }[$r]});
 		my $e =$s+1;
 		print OUT "$c\t$s\t$e\n";
 	    }
