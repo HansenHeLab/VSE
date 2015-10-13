@@ -19,6 +19,12 @@ VSE is a tool to calculate the enrichment of associated variant set (AVS) for an
 ```
 #####Installation:
 You can just download and run VSE.pl, no other installation required if you have the required programs already installed. The directory structure must be intact; i.e., ```lib``` and ```data``` directories must reside in the same directory as ```VSE.pl```.
+*The ```bedtools/bin/intersectBed``` and ```Rscript``` should be a executable from any location.* You can either achieve that by copying the ```bedtools/bin/intersectBed``` to your executable directory or add the bedtools path to ```.bashrc```. 
+*Software dependency:* 
+```bedtools``` - the latest version can be downloaded from https://github.com/arq5x/bedtools2 . Installation instruction can be found here: http://bedtools.readthedocs.org/en/latest/content/installation.html
+```R packages``` - ggplot2, reshape and car packages are available in CRAN.
+```Perl module File::Basename``` - More information on http://search.cpan.org/~nwclark/perl-5.8.6/lib/File/Basename.pm
+
 
 #####Example command:
 ```
