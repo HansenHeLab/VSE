@@ -102,7 +102,6 @@ if ($opt{d} =~ m/(bed|peak|gz)$/i){
 my $totalTagSnp=`wc -l < $opt{f}`;
 $totalTagSnp =~ s/^\s+//;
 chomp $totalTagSnp;
-print $totalTagSnp."\n"; die;
 die "$opt{f} does not have any snp\n" if ($totalTagSnp == 0);
 die "Unknown -p\n" if $opt{p} !~ m/(all|AVS|MRV|xml|R)/;
 my $totalColumnInLD = `awk '{print NF}' $opt{l} | sort -u | wc -l`;
