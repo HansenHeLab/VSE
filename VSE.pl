@@ -348,7 +348,8 @@ if ($opt{p} eq "xml" || $opt{p} eq "all" ){
 #--------------R---------------
 if ($opt{p} eq "R" || $opt{p} eq "all"){
     my $AVSsuffix = $opt{A} ? $opt{A} : $opt{s}; #user can choose to use AVS/MRV files previously generated for new sets of beds
-    open (OUT, ">", $AVSsuffix.".output/".$AVSsuffix.".VSE.stat.txt") or die;
+    die $AVSsuffix.".output directory not found. Have you run the previous modules?\n" if ( ! -d $AVSsuffix.".output");
+    open (OUT, ">", $AVSsuffix.".output/".$AVSsuffix.".VSE.stat.txt") or die "Could not open ".$AVSsuffix.".output/".$AVSsuffix.".VSE.stat.txt: $!\n" ;
     printLog("Generating boxplot");
      my $Routput = `Rscript $scriptDir/lib/stat.r $AVSsuffix | grep \"^\\[1\\]\" | sort -k8rn`;
     $Routput =~ s/\[1\]//g;
