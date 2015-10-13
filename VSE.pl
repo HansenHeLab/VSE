@@ -14,7 +14,7 @@ getopts('r:hvf:l:s:d:p:n:A:', \%opt);
 #----------subroutines---------------
 sub usage
 {
-    print "usage: vse.sh -f snpListBed -s suffix -d dirLocation [-r r2Value] [-v y/n] [-Y y/n] | [-h]\n";
+    print "usage: vse.sh -f snpListBed -l ldSNPList -s suffix -d dirLocation [-r r2Value] [-v] [-h]\n";
     print "Options:\n";
     print "-r[0.6/0.7/0.8/0.9/1]    R2 value to find SNPs in LD. default: 0.8\n";
     print "-v           Verbose\n";
@@ -24,7 +24,6 @@ sub usage
     print "-d[path]     Path to feature directory\n";
     print "-A[char]     Suffix for AVS/MRV files. Only used when -p is xml in order to avoid having to generate AVS/MRV again.\n";
     print "-p           [all/AVS/MRV/xml/R] Modular run; default: all\n";
-    print "-n           No. of iteration; default: 100\n";
     print "-h           This message\n";
 }
 
@@ -70,6 +69,15 @@ sub loadFileIntoArray
     close INF;
     return \@lines;
 }
+
+sub lineCount
+{
+    my $inputfile = shift;
+    my $totalTagSnp=`wc -l < $inputfile`;
+    $totalTagSnp =~ s/^\s+//;
+    chomp $totalTagSnp;
+    return $totalTagSnp;
+}
 #-------------------------
 
 #----PARAMETERS-----------
@@ -99,13 +107,11 @@ if ($opt{d} =~ m/(bed|peak|gz)$/i){
 	print "Directory path not found\n";
     }
 }
-my $totalTagSnp=`wc -l < $opt{f}`;
-$totalTagSnp =~ s/^\s+//;
-chomp $totalTagSnp;
+my $totalTagSnp=lineCount($opt{f});
 die "$opt{f} does not have any snp\n" if ($totalTagSnp == 0);
 die "Unknown -p\n" if $opt{p} !~ m/(all|AVS|MRV|xml|R)/;
 my $totalColumnInLD = `awk '{print NF}' $opt{l} | sort -u | wc -l`;
-die "Column number is not 6 for all lines in $opt{l}\n" if $totalColumnInLD != 1;
+die "Column number is not same for all lines in $opt{l}\n" if $totalColumnInLD != 1;
 
 if ($opt{A} && $opt{p} ne "R"){ #if predefined AVS/MRVs set is provided
     my $LDXfile = $AVSsuffix.".AVS/".$AVSsuffix.".LDX.bed";
