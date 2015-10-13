@@ -17,20 +17,27 @@ VSE is a Perl/Rscript command line tool to calculate the enrichment of associate
 - reshape
 - car
 ```
-#####Installation:
-You can just download and run VSE.pl, no other installation required if you have the required programs already installed. The directory structure must be intact; i.e., ```lib``` and ```data``` directories must reside in the same directory as ```VSE.pl```.
+####Installation:
+**Step 1: Install Perl**
+You can get the Perl software from [their website](https://www.perl.org/get.html) and install. Version 5.x is required.
+You must also install the Perl module ```Perl module File::Basename``` from the module's [CPAN page]( http://search.cpan.org/~nwclark/perl-5.8.6/lib/File/Basename.pm)
+The perl must be an executable command from any location.
 
-**The ```bedtools/bin/intersectBed``` and ```Rscript``` should be a executable from any location.** You can either achieve that by copying the ```bedtools/bin/intersectBed``` to your executable directory or add the bedtools path to ```.bashrc```. 
+**Step 2: Install R**
+R is also required for calculating the statistics and generating the plots. You can download R at www.r-project.org. Version 3.1.1 or greater is required.
+The following R packages are required: ```ggplot2```,```reshape```,```car``` , all of which can be downloaded and installed from CRAN.
+```Rscript``` should be an executable command from any location.
 
-**Software dependency:** 
+**Step 3: Install bedtools***
+You can download and install the latest version of bedtools from [their github repository]((https://github.com/arq5x/bedtools2). Installation instruction can be found  [in their website](http://bedtools.readthedocs.org/en/latest/content/installation.html)
 
-```bedtools``` - the latest version can be downloaded from [https://github.com/arq5x/bedtools2](https://github.com/arq5x/bedtools2). Installation instruction can be found here: [http://bedtools.readthedocs.org/en/latest/content/installation.html](http://bedtools.readthedocs.org/en/latest/content/installation.html)
+The ```intersectBed``` should be an executable command from any location. You can achieve that by copying the ```bedtools/bin/intersectBed``` to your executable directory.
 
-```R packages``` - ggplot2, reshape and car packages are available in CRAN.
+**Step 4: Download VSE**
+You can just download and run ```VSE.pl```, no other installation required if you have the required programs already installed. The directory structure must be intact; i.e., ```lib``` and ```data``` directories must reside in the same directory as ```VSE.pl```.
 
-```Perl module File::Basename``` - More information on the module's [CPAN page]( http://search.cpan.org/~nwclark/perl-5.8.6/lib/File/Basename.pm)
 
-
+####Running VSE
 #####Example command:
 ```
 perl VSE.pl -f snpListBed -l LDlist -s suffix -d dirLocation -v
