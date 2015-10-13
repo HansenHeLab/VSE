@@ -1,5 +1,5 @@
 # VSE
-VSE is a tool to calculate the enrichment of associated variant set (AVS) for an array of genomic regions.
+VSE is a Perl/Rscript command line tool to calculate the enrichment of associated variant set (AVS) for an array of genomic regions.
 
 **Program requirement:**
 ```
@@ -20,9 +20,20 @@ VSE is a tool to calculate the enrichment of associated variant set (AVS) for an
 #####Installation:
 You can just download and run VSE.pl, no other installation required if you have the required programs already installed. The directory structure must be intact; i.e., ```lib``` and ```data``` directories must reside in the same directory as ```VSE.pl```.
 
+**The ```bedtools/bin/intersectBed``` and ```Rscript``` should be a executable from any location.** You can either achieve that by copying the ```bedtools/bin/intersectBed``` to your executable directory or add the bedtools path to ```.bashrc```. 
+
+**Software dependency:** 
+
+```bedtools``` - the latest version can be downloaded from [https://github.com/arq5x/bedtools2](https://github.com/arq5x/bedtools2). Installation instruction can be found here: [http://bedtools.readthedocs.org/en/latest/content/installation.html](http://bedtools.readthedocs.org/en/latest/content/installation.html)
+
+```R packages``` - ggplot2, reshape and car packages are available in CRAN.
+
+```Perl module File::Basename``` - More information on the module's [CPAN page]( http://search.cpan.org/~nwclark/perl-5.8.6/lib/File/Basename.pm)
+
+
 #####Example command:
 ```
-perl VSE.pl -f snpListBed -l LDlist -s suffix -d dirLocation
+perl VSE.pl -f snpListBed -l LDlist -s suffix -d dirLocation -v
 ```
 
 #####Options:
@@ -32,10 +43,10 @@ perl VSE.pl -f snpListBed -l LDlist -s suffix -d dirLocation
 -d full path to directory containing all bed files or path to a single bed file
 -s output directory suffix. Output files will be saved in suffix.output directory
 -r [0.6/0.7/0.8/0.9/1] r2 value; default 0.8
--v verbose
 -p [all/AVS/MRV/xml/R] modular run; default all
 -A Suffix for existing AVS/MRV files. Only functional when -p is xml.
 -h help
+-v verbose
 ```
 ####Input
 VSE requires three input files.
