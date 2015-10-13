@@ -186,8 +186,8 @@ if ($opt{p} eq "MRV" || $opt{p} eq "all"){
     open (AV, "<", $AVSsuffix.".AVS/".$AVSsuffix.".LDXI.tally.txt") or die "$!\n";
     while (<AV>){
 	chomp;
-	print "$_\n" if eof(AV);
-	#my @snp = split/ /;
+	#print "$_\n" if eof(AV);
+	my @snp = split/ /;
 	push @AV, $snp[1];
 	push @RA, $snp[0];
 	foreach my $i (0..$#{ $SNPS[ $snp[1] ] }){
@@ -228,7 +228,7 @@ if ($opt{p} eq "MRV" || $opt{p} eq "all"){
 		$AV[$i]-=1 until $#{$SNPS[$AV[$i]]} > 1;
 	    }
 	    my $r = int(rand( $#{ $SNPS[ $AV[$i]] } + 1));
-	    my ($LDchr,$LDpos) = ${ $SNPS[ $AV[$i] ] }[$r] =~ m/:/ ? split (/:/, ${ $SNPS[ $AV[$i] ] }[$r] : die ${ $SNPS[ $AV[$i] ] }[$r]);
+	    my ($LDchr,$LDpos) = ${ $SNPS[ $AV[$i] ] }[$r] =~ m/:/ ? split (/:/, ${ $SNPS[ $AV[$i] ] }[$r]) : die ${ $SNPS[ $AV[$i] ] }[$r];
 	    if (!exists $blocks{$LDchr}->{${ $SNPS[ $AV[$i]] }[$r]}){
 		printLog(${$SNPS[$AV[$i]]}[$r]." does not exists in block\n");
 		$r = int(rand( $#{ $SNPS[ $AV[$i]] } + 1)) until (exists $blocks{$LDchr}->{${ $SNPS[ $AV[$i]] }[$r]});
