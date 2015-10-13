@@ -94,6 +94,27 @@ printLog("Script location: $scriptDir");
 #------------------------
 
 #-------INPUT QC---------
+my $toolName = "Rscript";
+my $toolPath = '';
+for my $path ( split (/:/, $ENV{PATH}) ) {
+    if ( -f "$path/$toolName" && -x _ ) {
+        print "$toolName found in $path\n";
+        $toolPath = "$path/$toolName";
+        last;
+    }
+}
+die "No $toolName command available. VSE requires R version 3.1.1 or above to function.\n" unless ( $toolPath );
+$toolName = "intersectBed";
+$toolPath = '';
+for my $path ( split (/:/, $ENV{PATH}) ) {
+    if ( -f "$path/$toolName" && -x _ ) {
+        print "$toolName found in $path\n";
+        $toolPath = "$path/$toolName";
+        last;
+    }
+}
+die "No $toolName command available. VSE requires Bedtools utility intersectBed to be executable.\n" unless ( $toolPath );
+
 die "-r must be between 0.6 and 0.8\n" if $opt{r} <0.6 || $opt{r} > 1;
 die "parameter missing\n" if (!$opt{f} || !$opt{l} || !$opt{s} || !$opt{d});
 die "$opt{f} file not found\n" if (! -e $opt{f});
