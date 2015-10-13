@@ -1,5 +1,5 @@
 # VSE
-VSE is a tool to calculate the enrichment of associated variant set (AVS) for an array of genomic regions.
+VSE is a Perl/Rscript command line tool to calculate the enrichment of associated variant set (AVS) for an array of genomic regions.
 
 **Program requirement:**
 ```
