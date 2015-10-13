@@ -19,28 +19,34 @@ VSE is a Perl/Rscript command line tool to calculate the enrichment of associate
 ```
 ####Installation:
 **Step 1: Install Perl**
+
 You can get the Perl software from [their website](https://www.perl.org/get.html) and install. Version 5.x is required.
 You must also install the Perl module ```Perl module File::Basename``` from the module's [CPAN page]( http://search.cpan.org/~nwclark/perl-5.8.6/lib/File/Basename.pm)
 The perl must be an executable command from any location.
 
 **Step 2: Install R**
+
 R is also required for calculating the statistics and generating the plots. You can download R at www.r-project.org. Version 3.1.1 or greater is required.
+
 The following R packages are required: ```ggplot2```,```reshape```,```car``` , all of which can be downloaded and installed from CRAN.
+
 ```Rscript``` should be an executable command from any location.
 
 **Step 3: Install bedtools***
+
 You can download and install the latest version of bedtools from [their github repository]((https://github.com/arq5x/bedtools2). Installation instruction can be found  [in their website](http://bedtools.readthedocs.org/en/latest/content/installation.html)
 
 The ```intersectBed``` should be an executable command from any location. You can achieve that by copying the ```bedtools/bin/intersectBed``` to your executable directory.
 
 **Step 4: Download VSE**
+
 You can just download and run ```VSE.pl```, no other installation required if you have the required programs already installed. The directory structure must be intact; i.e., ```lib``` and ```data``` directories must reside in the same directory as ```VSE.pl```.
 
 
-####Running VSE
+###Using VSE
 #####Example command:
 ```
-perl VSE.pl -f snpListBed -l LDlist -s suffix -d dirLocation -v
+perl VSE.pl -f example.SNPs/NHGRI-BCa.bed -l example.SNPs/ld_BCa.bed -s run1 -d example.beds -v
 ```
 
 #####Options:
@@ -64,10 +70,12 @@ Example:
 chr1  1000  1001  rs00001
 ```
 ######The LD SNPs
-The list of LD SNPs should be a tab delimited bed file in the following format and should be provided with ```-l``` parameter. There should be no header line. The LD SNPs must be calculated based on EUR population of 1000 Genome Project Phase III genotyping data (Release 2013/05). It's important to use the updated genotyping information for calculating LD because the newer releases are more accurant than the older ones because of inclusion of more individuals. However, for older studies, VSE will soon support Phase I data as well.
+The list of LD SNPs should be a **tab delimited** bed file in the following format and should be provided with ```-l``` parameter. 
 ```
 chr1  900 901 LDSNPid tagSNPid other_optional_columns
 ```
+There should be no header line. The LD SNPs must be calculated based on EUR population of 1000 Genome Project Phase III genotyping data (Release 2013/05). It's important to use the updated genotyping information for calculating LD because the newer releases are more accurant than the older ones because of inclusion of more individuals. However, for older studies, VSE will soon support 1000 Genome Project Phase I data as well.
+
 ######The genomic ranges
 The genomic regions should be a single directory and the directory path should be given in ```-d``` parameter. The genomics regions should be bed files. The name of the file is used as labels for the regions. For examples, ```DHS.bed``` will be denoted as DHS in final figures and table.
 ```-d``` can also be a path to a bed file. In that case, the tallies will be printed on screen and the enrichment analysis will not be run.
