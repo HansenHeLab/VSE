@@ -20,19 +20,20 @@ VSE is a Perl/Rscript command line tool to calculate the enrichment of associate
 ####Installation:
 **Step 1: Install Perl**
 
-You can get the Perl software from [their website](https://www.perl.org/get.html) and install. Version 5.x is required.
-You must also install the Perl module ```File::Basename``` (module's CPAN page is [here]( http://search.cpan.org/~nwclark/perl-5.8.6/lib/File/Basename.pm)).
-In most cases, you can install by using the following command from your terminal:
+  You can get the Perl software from [their website](https://www.perl.org/get.html) and install. Version 5.x is required.
+  You must also install the Perl module ```File::Basename``` (module's CPAN page is [here]( http://search.cpan.org/~nwclark/perl-5.8.6/lib/File/Basename.pm)).
 
-```cpanm File::Basename```
+  In most cases, the following steps will work.
+  
+  1. First, install cpanMinus if not installed:
 
-if cpanm is not installed, you can install it by typing the following command:
+    ```sudo cpan App::cpanminus```
 
-```cpan App::cpanminus```
+  2. Then install File::Basename by the following command:
 
-If it fails, you can try ```sudo cpan App::cpanminus``` to run as an administrator.
+    ```cpanm File::Basename```
 
-If you have issues, you can refer to [CPAN help page](http://www.cpan.org/modules/INSTALL.html) for more details.
+  If you have issues, you can refer to [CPAN help page](http://www.cpan.org/modules/INSTALL.html) for more details.
 
 **Step 2: Install R**
 
