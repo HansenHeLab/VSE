@@ -32,7 +32,7 @@ The following R packages are required: ```ggplot2```,```reshape```,```car``` , a
 
 ```Rscript``` should be an executable command from any location.
 
-**Step 3: Install bedtools***
+**Step 3: Install bedtools**
 
 You can download and install the latest version of bedtools from [their github repository]((https://github.com/arq5x/bedtools2). Installation instruction can be found  [in their website](http://bedtools.readthedocs.org/en/latest/content/installation.html)
 
