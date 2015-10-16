@@ -24,7 +24,7 @@ library(reshape)
 # Set normalization parameters:
 rald    <- 1     # 1 raSNPs / 2 ldSNPs
 norm    <- 1     # 1 yes / 0 no
-toorder <- 1     # 1 yes / 0 no
+toorder <- 0     # 1 yes / 0 no
 fixp    <- 1     # Find best p. 1 fixed; else not fixed, i.e. search.
 norm_p  <- 1  # If fixed == 1, the value of p. 0.75
 Nall    <- 100   # Number of tests for Bonferroni.
@@ -199,6 +199,7 @@ if( toorder == 1 ){
 }
 
 names_tmp  <- paste( names, sprintf("%5.2f", -log10( pvals )))
+names_pval  <- sprintf("%5.2f", -log10( pvals ))
 names_dune <- names_tmp[on]
 rav_dune <-     ravs[,on]
 null_dune <-    nulls[,on]
@@ -209,13 +210,12 @@ max <- max( c( ravs[!ravs == "NaN"] ) )
 
 pdf(boxplotOutput.path)
 mar.orig <- par()$mar # save the original values
-par(mar = c(20,4,4,4)) # set your new values
+par(ps=10, mar = c(20,3,1,1)) # set your new values
 boxplot(as.data.frame(null_dune), 
     horizontal = FALSE, las = 2, 
      ylim = c( min, max ), 
     family = "mono", las = 1,
-    range = 0, names = names_dune, border = gray)
-par(mar = mar.orig) # put the original values back
+    range = 0, names = names_pval, border = gray, cex.axis=0.70)
 
 abline( h = pthresh_sd, col="grey" )
 # abline( h = xthresh_sd )
@@ -228,15 +228,23 @@ for (i in 1:N ){
         color = gray
     } else {
         if( is.finite(rav_dune[i]) ){
-            bg = gray
-            color = gray
+	    if (rav_dune[i] >= bthresh_sd){
+               bg = red
+               color = red
+            } else {
+              bg = gray
+              color = gray
+            }
         } else {
             bg = "green"
             color = "green"
         }
     }
-    points(i,rav_dune[i], pch = 23, bg = bg, col = color, lwd = 1)
+    points(i,rav_dune[i], pch = 23, bg = bg, col = color, lwd = 0)
 }
+mtext("Enrichment Score",side=2,line=1.5, cex=0.9)
+mtext(names[on],side=1,line=2, at=on, las=2, adj=1, cex=0.9)
+par(mar = mar.orig) # put the original values back
 dev.off()
 q( status = 0 )
 
