@@ -20,23 +20,69 @@ VSE is a Perl/Rscript command line tool to calculate the enrichment of associate
 ####Installation:
 **Step 1: Install Perl**
 
-You can get the Perl software from [their website](https://www.perl.org/get.html) and install. Version 5.x is required.
-You must also install the Perl module ```Perl module File::Basename``` from the module's [CPAN page]( http://search.cpan.org/~nwclark/perl-5.8.6/lib/File/Basename.pm)
-The perl must be an executable command from any location.
+  You can get the Perl software from [their website](https://www.perl.org/get.html) and install. Version 5.x is required.
+  You must also install the Perl module ```File::Basename``` (module's CPAN page is [here]( http://search.cpan.org/~nwclark/perl-5.8.6/lib/File/Basename.pm)).
+
+  In most cases, the following steps will work.
+  
+  1. First, install cpanMinus if not installed:
+
+    ```sudo cpan App::cpanminus```
+
+  2. Then install File::Basename by the following command:
+
+    ```cpanm File::Basename```
+
+  If you have issues, you can refer to [CPAN help page](http://www.cpan.org/modules/INSTALL.html) for more details.
 
 **Step 2: Install R**
 
-R is also required for calculating the statistics and generating the plots. You can download R at www.r-project.org. Version 3.1.1 or greater is required.
+R is also required for calculating the statistics and generating the plots. You can download R at [www.r-project.org](http://www.r-project.org). Version 3.1.1 or greater is required.
 
 The following R packages are required: ```ggplot2```,```reshape```,```car``` , all of which can be downloaded and installed from CRAN.
+
+In most cases, you can install the packages by:
+
+1. Go to R command line by typing ```R``` in your terminal
+2. type
+
+  ```
+  install.packages("ggplot2")  
+  install.packages("reshape")  
+  install.packages("car")
+  ```
+
+3. Exit R environment by typing ```q()```
 
 ```Rscript``` should be an executable command from any location.
 
 **Step 3: Install bedtools**
 
-You can download and install the latest version of bedtools from [their github repository]((https://github.com/arq5x/bedtools2). Installation instruction can be found  [in their website](http://bedtools.readthedocs.org/en/latest/content/installation.html)
+You can download and install the latest version of bedtools from [their github repository](https://github.com/arq5x/bedtools2). 
 
-The ```intersectBed``` should be an executable command from any location. You can achieve that by copying the ```bedtools/bin/intersectBed``` to your executable directory.
+In most cases, you can install by this:
+
+1. In terminal, go to downloaded bedtools folder:
+
+  ```
+  cd bedtools-2.25.0
+  ```
+
+2. Compile the tool by typing
+
+  ```
+  make
+  ```
+
+3. Copy the binary programs from ```bin/``` to your executable directory, which is usually ```/usr/bin/``` or ```/usr/local/bin```
+
+  ```
+  sudo cp bin/* /usr/bin/
+  ```
+
+If this does not work, further installation instruction can be found  [in their website](http://bedtools.readthedocs.org/en/latest/content/installation.html)
+
+The ```intersectBed``` should be an executable command from any location.
 
 **Step 4: Download VSE**
 
@@ -46,7 +92,10 @@ You can just download and run ```VSE.pl```, no other installation required if yo
 ###Using VSE
 #####Example command:
 ```
-perl VSE.pl -f example.SNPs/NHGRI-BCa.bed -l example.SNPs/ld_BCa.bed -s run1 -d example.beds -v
+perl VSE.pl -f example.SNPs/NHGRI-BCa.bed \
+            -l example.SNPs/ld_BCa.bed \
+            -s run1 -d example.beds \
+            -v
 ```
 
 #####Options:
