@@ -159,7 +159,7 @@ perl VSE.pl -f example.SNPs/NHGRI-BCa.bed \
 
 This command line will use the AVS and MRVS outputted from run1 and will produce new matrix file in ```run2.output``` directory. Then you can run ```-p R``` to compute enrichment and generate the plots:
 
-```perl VSE.pl -f tagSNPs.bed -l LDSNPs.bed -d /path/TF_binding/ -p R -A run1 -s run2 -v```
+```perl VSE.pl -f tagSNPs.bed -l LDSNPs.bed -d /path/TF_binding/ -p R -s run2 -v```
 ######Running for just one genomic region file (not recommended unless you want to quickly check the number of overlaps):
 ```perl VSE.pl -f tagSNPs.bed -l LDSNPs.bed -d /path/POL2_binding.bed -s run-pol2 -v```
 
