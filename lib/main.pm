@@ -5,7 +5,7 @@ use Exporter;
 
 our @ISA = qw(Exporter);
 
-our @EXPORT = qw(LDX_to_LDXI tally);
+our @EXPORT = qw(LDX_to_LDXI);
 
 sub LDX_to_LDXI
 {

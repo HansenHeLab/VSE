@@ -3,23 +3,27 @@
 # THIS PROGRAM DRAWS VSE PLOTS WITH MATRICES (intersection heatmaps)
 
 args <- commandArgs(TRUE)
-SUFFIX <- args[1]
 
-outputDir <- paste(SUFFIX,"output", sep=".");
-VSEtxt.filename <- paste(SUFFIX,"VSE","txt", sep=".");
-VSEtxt.path <- paste(outputDir,VSEtxt.filename, sep="/");
-boxplotOutput.filename <- paste(SUFFIX,"final_boxplot","pdf",sep=".");
-boxplotOutput.path <- paste(outputDir,boxplotOutput.filename, sep="/");
-density.filename <- paste(SUFFIX,"density","pdf", sep=".");
-density.path <- paste(outputDir,density.filename,sep="/");
-matrix.filename <- paste(SUFFIX, "matrix","pdf",sep=".");
-matrix.path <- paste(outputDir,matrix.filename, sep="/");
-matrixtxt.filename <- paste(SUFFIX,"matrix","txt",sep=".");
-matrixtxt.path <- paste(outputDir,matrixtxt.filename,sep="/");
+#list.of.packages <- c("ggplot2", "car", "reshape")
+#new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
+#if(length(new.packages)) install.packages(new.packages)
 
-library(car)
-library(ggplot2)
-library(reshape)
+if (!require(car)){install.packages("car")}
+if(!require(reshape)){install.packages("reshape")}
+if(!require(ggplot2)){install.packages("ggplot2")}
+
+#library(car)
+#library(ggplot2)
+#library(reshape)
+
+in.vse <- args[1]
+in.matrix <- args[2]
+
+pdf.dunes <- args[4]
+pdf.boxplot <- args[3]
+pdf.matrix <- args[5]
+
+null_size <- as.numeric(args[6])
 
 # Set normalization parameters:
 rald    <- 1     # 1 raSNPs / 2 ldSNPs
@@ -28,7 +32,7 @@ toorder <- 0     # 1 yes / 0 no
 fixp    <- 1     # Find best p. 1 fixed; else not fixed, i.e. search.
 norm_p  <- 1  # If fixed == 1, the value of p. 0.75
 Nall    <- 100   # Number of tests for Bonferroni.
-null_size <- 100 # WAS 1000 ORIGINALLY
+
 
 
 # Set graphing parameters:
@@ -36,7 +40,7 @@ load_names  <- TRUE
 plot_matrix <- TRUE
 plot_scale  <- FALSE
 
-x <- read.table( VSEtxt.path, as.is = TRUE )
+x <- read.table( in.vse, as.is = TRUE )
 colnames(x) <- c( "AVS", sprintf( "%04d", 0:99), "BED")
 
 N <- dim(x)[1]
@@ -58,7 +62,7 @@ names <- x[["BED"]]
 names <- gsub( "\\/.*\\/", "", names, perl = TRUE)
 names <- sprintf( "%-15s", names)
 
-pdf(density.path, height=3, width=3.5, pointsize=10)
+pdf(pdf.dunes, height=3, width=3.5, pointsize=10)
 for (n in 1:N){
   par(mar=c(4,4,2,1))
     #hist(null_all[,n], main=names[n], xlab="Overlaps", ylab="Frequency", xlim=c(0,maxVal[,n]+3))
@@ -68,8 +72,8 @@ for (n in 1:N){
 }
 dev.off()
 
-   pdf(matrix.path)
-   mat <- read.table(matrixtxt.path, header=TRUE, sep="\t")
+   pdf(pdf.matrix)
+   mat <- read.table(in.matrix, header=TRUE, sep="\t")
    row.names(mat)<-mat[,1]
    mat2 <- mat[,-1]
    mat.m <- melt(as.matrix(mat2))
@@ -206,11 +210,17 @@ null_dune <-    nulls[,on]
 nonor_dune <-    nonor[,on]
 
 min <- min( c( nulls[!nulls == "NaN"] ) )
-max <- max( c( ravs[!ravs == "NaN"] ) )
-
-pdf(boxplotOutput.path)
+maxrav <- max( c( ravs[!ravs == "NaN"] ) )
+maxnull <- max(null_dune, na.rm=TRUE)
+if (maxrav > maxnull){
+   max = maxrav
+} else {
+  max = maxnull
+}
+pdf(pdf.boxplot)
 mar.orig <- par()$mar # save the original values
-par(ps=10, mar = c(20,3,1,1)) # set your new values
+par(ps=10, mar = c(15,3,1,1)) # set your new values
+#par(ps=10)
 boxplot(as.data.frame(null_dune), 
     horizontal = FALSE, las = 2, 
      ylim = c( min, max ), 
@@ -247,5 +257,3 @@ mtext(names[on],side=1,line=2, at=on, las=2, adj=1, cex=0.9)
 par(mar = mar.orig) # put the original values back
 dev.off()
 q( status = 0 )
-
-

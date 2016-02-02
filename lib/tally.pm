@@ -14,6 +14,7 @@ sub tally
     my $tally = 0;
     my $inside = 0;
     my $raSNP = "";
+    my $highestTally = 0;
     open (LDX, "<$infile") or die $!;
     open (OUT, ">$outfile") or die $!;
     while (<LDX>){
@@ -37,8 +38,10 @@ sub tally
 	} else {
 	    #a ldSNP
 	    $tally++;
+	    $highestTally = $tally if $tally > $highestTally;
 	}
     }
     close OUT;
     close LDX;
+    return $highestTally;
 }
