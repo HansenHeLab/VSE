@@ -61,7 +61,7 @@ perl vse preprocess --tag example.SNPs/NHGRI-BCa.bed \
 --phase The 1000 Genome Project data used to calculate LD blocks. Must be 1 or 3. Default: 1
 --bgSize The number of MRVS to compute. The default of 100 is sufficient for normal uses. Higher number is computionally heavier and is not recommended for typical uses.
 --n The number of threads to use. Default: 4
-
+```
 #####Module "vse":
 The second module, ```vse```, takes the outputs from the first module and computes the overlapping of AVS and MRVSs with the provided genomic features.
 
