@@ -23,7 +23,7 @@ pdf.dunes <- args[4]
 pdf.boxplot <- args[3]
 pdf.matrix <- args[5]
 
-null_size <- as.numeric(args[6])
+#null_size <- as.numeric(args[6])
 
 # Set normalization parameters:
 rald    <- 1     # 1 raSNPs / 2 ldSNPs
@@ -41,15 +41,17 @@ plot_matrix <- TRUE
 plot_scale  <- FALSE
 
 x <- read.table( in.vse, as.is = TRUE )
+N <- dim(x)[1]
+null_size <- dim(x)[2] - 2
 colnames(x) <- c( "AVS", sprintf( "%04d", 1:null_size), "BED")
 
-N <- dim(x)[1]
 gray <- "gray30"
 red  <- "red"
 
 rav_all <- matrix(data = NA, nrow = 1, ncol = N)
 null_all <- matrix(data = NA, nrow = null_size, ncol = N)
 maxVal <- matrix(data = NA, nrow = 1, ncol=N)
+
 for ( n in 1:N ){
   rav_all[,n] <-  x[ n, 1 ]
   null_all[,n] <-  t(x[ n, (1:null_size)])
