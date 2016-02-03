@@ -120,7 +120,6 @@ use LDX_to_LDXI;
 use tally;
 use LDX_v_bed;
 
-use Data::Dumper;
 
 #----ARGUMENTS-----------
 my $program = $ARGV[0];
@@ -130,7 +129,7 @@ my $avsFile = "";
 my $tallyFile = "";
 my $r = 0.8;
 my $bgSize = 100;
-my $kgpPhase = 1;
+my $kgpPhase = 3;
 my $outputPrefix = "vse";
 my $mrvsDir = "";
 my $bedDir = "";
@@ -329,7 +328,7 @@ if ($program =~ m/preprocess/){
 
     #Load null LD blocks
     printLog("Saving LD block into memory");
-    foreach my $i (1..22){
+    foreach my $i (1..22,"X"){
 	printLog("chr$i");
 	if ($kgpPhase == 1){
 	    open (IN, "gunzip -c $scriptDir/data/phaseI/chr${i}.ld.gz |") or die;
@@ -356,24 +355,23 @@ if ($program =~ m/preprocess/){
     
     #Writing MRVSs
     printLog("Writing MRVs in $mrvsDir");
-    # my $delim = int $bgSize / $totalForks;
-    # my $forks = 1; #fork counter  
-    # for (1..$totalForks){
-    # 	my $pid = fork();
-    # 	if (not defined $pid){
-    # 	    warn 'Could not fork';
-    # 	    next;
-    # 	}
-    # 	if ($pid){ #parent process
-    # 	    $forks++; #count the number of child processes
-    # 	} else { #child process
-    # 	    my $from = $forks == 1 ? 1 : ($forks * $delim) - ($delim - 1);
-    # 	    my $to = $forks == $totalForks ? $bgSize :  $forks * $delim;
-    # 	    foreach my $file ($from..$to){
-    foreach my $file(1..$bgSize){
+     my $delim = int $bgSize / $totalForks;
+     my $forks = 1; #fork counter  
+     for (1..$totalForks){
+     	my $pid = fork();
+     	if (not defined $pid){
+     	    warn 'Could not fork';
+     	    next;
+     	}
+     	if ($pid){ #parent process
+     	    $forks++; #count the number of child processes
+     	} else { #child process
+     	    my $from = $forks == 1 ? 1 : ($forks * $delim) - ($delim - 1);
+     	    my $to = $forks == $totalForks ? $bgSize :  $forks * $delim;
+     	    foreach my $file ($from..$to){
 		$file = $mrvsDir."/".$file;
 		open (OUT, ">$file") or die;
-		printLog("Writing to $file");
+#		printLog("Writing to $file");
 		foreach my $i (0..$#AV){ #loop through risk loci
 		    if ($#{$SNPS[$AV[$i]]} < 1){ #there is no null LD block of identical size
 			$AV[$i]-=1 until $#{$SNPS[$AV[$i]]} > 1; #Reduce the size of risk LD block by one until a matched null set is found
@@ -381,13 +379,13 @@ if ($program =~ m/preprocess/){
 		    my @nullLd = @{$SNPS[$AV[$i]]}; #array of all null LD blocks with similar size as risk locus
 		    my $rand = int(rand( $#nullLd + 1)); #randomly choose one null LD block
 		    my $nullTagId = $nullLd[$rand]; #tag SNP of the null LD block
-		    print "$nullTagId\t";
 		    my ($LDchr,$LDpos) = $nullTagId =~ m/:/ ? split (/:/, $nullTagId) : die $nullTagId;
-		    if (!exists $blocks{$LDchr}->{$nullTagId}){
-			$rand = int(rand( $#nullLd + 1)) until (exists $blocks{$LDchr}->{${ $SNPS[ $AV[$i]] }[$r]});
+		    unless (exists $blocks{$LDchr}->{$nullLd[$rand]}){
+			$rand = int(rand( $#nullLd + 1));
+			$nullTagId = $nullLd[$rand];
+			($LDchr,$LDpos) = $nullTagId =~ m/:/ ? split (/:/, $nullTagId) : die $nullTagId;
 		    }
-		    $nullTagId = $nullLd[$rand];
-		    print "$nullTagId\n";
+		    printLog("$nullTagId not found in blocks") if (!exists $blocks{$LDchr}->{$nullTagId});		    
 		    print OUT "# raSNP ".$RA[ $i ]."\n";
 		    if ($blocks{$LDchr}->{$nullTagId} =~ m/,/){
 			my @LDsnps = split (/,/,$blocks{$LDchr}->{$nullTagId});
@@ -404,12 +402,12 @@ if ($program =~ m/preprocess/){
 		}
 		close OUT;
 	    }
-#	    exit;
-#	}
-#    }
-#    for (1..$forks){
-#	my $pid = wait();
-#    }
+	    exit;
+	}
+    }
+    for (1..$forks){
+	my $pid = wait();
+    }
 }
 #<-----------------------PREPROCESS----------------------------------
 
