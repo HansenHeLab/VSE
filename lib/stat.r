@@ -41,7 +41,7 @@ plot_matrix <- TRUE
 plot_scale  <- FALSE
 
 x <- read.table( in.vse, as.is = TRUE )
-colnames(x) <- c( "AVS", sprintf( "%04d", 0:99), "BED")
+colnames(x) <- c( "AVS", sprintf( "%04d", 1:null_size), "BED")
 
 N <- dim(x)[1]
 gray <- "gray30"
@@ -52,7 +52,7 @@ null_all <- matrix(data = NA, nrow = null_size, ncol = N)
 maxVal <- matrix(data = NA, nrow = 1, ncol=N)
 for ( n in 1:N ){
   rav_all[,n] <-  x[ n, 1 ]
-  null_all[,n] <-  t(x[ n, (1:null_size) + 1])
+  null_all[,n] <-  t(x[ n, (1:null_size)])
   maxVal[,n] <- max(null_all[,n])
   if (rav_all[,n] > maxVal[,n]){
     maxVal[,n] <- rav_all[,n]
