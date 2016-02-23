@@ -1,11 +1,10 @@
 # VSE
-VSE is a Perl command line tool to calculate the enrichment of associated variant set (AVS) for an array of genomic regions.
+VSE is a Perl command line tool to calculate the enrichment of associated variant set (AVS) for an array of genomic regions. The AVS is the collection of disjoint LD blockes computed from a list of disease associated SNPs and their linked (LD) SNPs. VSE generated a null distribution of matched random variant sets (MRVSs) from 1000 Genome Project Phase III data that are identical to AVS LD block by block. It then computes the enrichment of AVS intersecting with user provided genomic features (e.g., histone marks or transcription factor binding sites) compared with the null distribution.
 
 **Program requirement:**
 ```
-Perl (5.14 or higher) and R (3.1.1).
-
-The program further requires R package ```car```. This package will be installed automatically if not installed in the system (internet required).
+- Perl (5.14 or higher) with package Statistics::R
+- R (3.1.1) with package car.
 ```
 
 ####Installation:
@@ -13,7 +12,7 @@ The program further requires R package ```car```. This package will be installed
 
   You can get the Perl software from [their website](https://www.perl.org/get.html) and install. Version 5.14+ is required. Perl module Statistics::R must be installed. In typical linux environment, you can install by using the following command from your terminal:
 
- ```cpanm File::Basename```
+ ```cpanm Statistics::R```
  
  if cpanm is not installed, you can install it by typing the following command:
  
@@ -27,7 +26,7 @@ The program further requires R package ```car```. This package will be installed
 
 R is also required for calculating the statistics and generating the plots. You can download R at [www.r-project.org](http://www.r-project.org). Version 3.1.1 is preferred, the later versions may work.
 
-The following R package is required: ```car```. The package will be installed automatically from the internet. If connection to internet is not possible, the packages can be downloaded and installed from CRAN.
+The R package ```car``` is required. The package will be installed automatically if not installed. If connection to internet is not possible, the packages can be downloaded and installed from CRAN.
 
 In most cases, you can install the packages by:
 
@@ -51,35 +50,44 @@ You must download the file ``vse`` and the supporting 1000 Genome Project LD dat
 VSE can be run minimally by the following command:
 
 ```
-vse --tag example.SNPs/NHGRI-BCa.bed \
-    --ld example.SNPs/ld_BCa.bed \
-    --beds example.beds/* \
+vse --tag     example.SNPs/NHGRI-BCa.bed \
+    --ld      example.SNPs/ld_BCa.bed \
+    --beds    example.beds/* \
     --dataDir VSE_data/ \
-    --output vseOutput
+    --output  vseOutput
 ```
 
 #####Required parameters:
 ```
---tag Location to tag SNPs' list. 
---ld Location to LD SNPs' list.
---output Output file prefix.
---beds Path to bed files.
---dataDir Location to the VSE supporting data directory. The data can be dowloaded from http://helab.uhnresearch.ca/?q=node/26
+--tag	  Location to tag SNPs' list. 
+--ld  	  Location to LD SNPs' list.
+--output  Output file prefix.
+--beds    Path to bed files.
+--dataDir Location to the VSE supporting data directory. 
+	  The data can be dowloaded from 
+	  http://helab.uhnresearch.ca/?q=node/26
 ```
 
 #####Optional parameters:
 ```
---labels Labels for bed files. Must be in the same order as the bed files. If not provided, the filenames of the bed files will be used.
---r The r value used for determining LD SNPs. Must be between 0.6 and 0.9. Default: 0.8
---bgSize The number of MRVS to compute. Default: 500
---n The number of threads to use. Default: 10
---normality The p-value cutoff to be used for Kolmogorov-Smirnov test. A higher p-value represents more normality of the null distribution. Anything lower than 0.05 means the null distribution significantly differs from normality, which will render the enrichment result invalid. Default: 0.9. Can be lowered to make the program faster.
+--labels    Labels for bed files. Must be in the same order as the bed files. 
+	    If not provided, the filenames of the bed files will be used.
+--r 	    The r value used for determining LD SNPs. Must be between 0.6 and 
+	    0.9. Default: 0.8
+--bgSize    The number of MRVS to compute. Default: 500
+--n 	    The number of threads to use. Default: 10
+--normality The p-value cutoff to be used for Kolmogorov-Smirnov test. A higher 
+	    p-value represents more normality of the null distribution. Anything 
+	    lower than 0.05 means the null distribution significantly differs 
+	    from normality, which will render the enrichment result invalid. 
+	    Default: 0.9. Can be lowered to make the program faster.
 --visualize To generate figures from the result.
---p P-value cutoff. Only useful if --visualize switch is on.
---padjust Cutoff for adjust P-value using Bonferroni correction. Only useful if --visualize switch is on. Default: 0.01
---seed Predefined seed value for reproducibility of the result.
---keepTmp Save all the temporary files. Useful for advanced users.
---quiet Remove verbosity.
+--p 	    P-value cutoff. Only useful if --visualize switch is on.
+--padjust   Cutoff for adjust P-value using Bonferroni correction. Only useful 
+	    if --visualize switch is on. Default: 0.01
+--seed 	    Predefined seed value for reproducibility of the result.
+--keepTmp   Save all the temporary files. Useful for advanced users.
+--quiet     Remove verbosity.
 ```
 
 ####Input File Formats
