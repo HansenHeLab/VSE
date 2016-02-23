@@ -1,43 +1,24 @@
 # VSE
-VSE is a Perl command line tool to calculate the enrichment of associated variant set (AVS) for an array of genomic regions. The AVS is the collection of disjoint LD blockes computed from a list of disease associated SNPs and their linked (LD) SNPs. VSE generated a null distribution of matched random variant sets (MRVSs) from 1000 Genome Project Phase III data that are identical to AVS LD block by block. It then computes the enrichment of AVS intersecting with user provided genomic features (e.g., histone marks or transcription factor binding sites) compared with the null distribution.
+VSE is a Perl command line tool to calculate the enrichment of associated variant set (AVS) for an array of genomic regions. The AVS is the collection of disjoint LD blocks computed from a list of disease associated SNPs and their linked (LD) SNPs. VSE generates a null distribution of matched random variant sets (MRVSs) from 1000 Genome Project Phase III data that are identical to AVS, LD block by block. It then computes the enrichment of AVS intersecting with user provided genomic features (e.g., histone marks or transcription factor binding sites) compared with the null distribution.
 
 **Program requirement:**
 ```
 - Perl (5.14 or higher) with package Statistics::R
-- R (3.1.1) with package car.
+- R (3.1.1) with package car
 ```
 
 ####Installation:
 **Step 1: Install Perl**
 
-  You can get the Perl software from [their website](https://www.perl.org/get.html) and install. Version 5.14+ is required. Perl module Statistics::R must be installed. In typical linux environment, you can install by using the following command from your terminal:
+You can get the Perl software from [their website](https://www.perl.org/get.html) and install. Version 5.14+ is required. Perl module Statistics::R must be installed. In typical linux environment, you can install by typing ```cpan Statistics::R``` in your command prompt.
 
- ```cpanm Statistics::R```
- 
- if cpanm is not installed, you can install it by typing the following command:
- 
- ```cpan App::cpanminus```
- 
- If it fails, you can try ```sudo cpan App::cpanminus``` to run as an administrator.
- +
- If you have issues, you can refer to [CPAN help page](http://www.cpan.org/modules/INSTALL.html) for more details.
+If you have issues, you can refer to [CPAN help page](http://www.cpan.org/modules/INSTALL.html) for more details.
 
 **Step 2: Install R**
 
 R is also required for calculating the statistics and generating the plots. You can download R at [www.r-project.org](http://www.r-project.org). Version 3.1.1 is preferred, the later versions may work.
 
-The R package ```car``` is required. The package will be installed automatically if not installed. If connection to internet is not possible, the packages can be downloaded and installed from CRAN.
-
-In most cases, you can install the packages by:
-
-1. Go to R command line by typing ```R``` in your terminal
-2. type
-
-  ```
-  install.packages("car")
-  ```
-
-3. Exit R environment by typing ```q()```
+The R package ```car``` is required. The package will be installed automatically if not installed. If connection to internet is not possible, see at the end of this document for more help.
 
 
 **Step 4: Download VSE**
@@ -128,3 +109,17 @@ VSE produces multiple output files:
 2. The quality of ChIP-seq data is very important. We recommend users to confirm the quality of the ChIP-seq data and to only use data that are of good quality to avoid false enrichment. There are tools like ChIPQC or Chillin for quality control of ChIP-seq data.
 3. Make sure that you use the same r2 cutoff that you used to determine your LD SNPs.
 4. Null size is a critical factor for reproducible results. Higher the null size better the normalcy of the distribution. Default of 500 is sufficiently large, but you may try 1000 in needed.
+
+####Further help for installing R package:
+the R packages ```car``` can be downloaded and installed from CRAN.
+
+In most cases, you can install the packages by:
+
+1. Go to R command line by typing ```R``` in your terminal
+2. type
+
+  ```
+  install.packages("car")
+  ```
+
+3. Exit R environment by typing ```q()```
