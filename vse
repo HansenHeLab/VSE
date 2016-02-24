@@ -585,9 +585,8 @@ sub boxplot
     $R->set('out', $output);
     $R->run(q`df <- read.csv(file, row.names = 1, header=FALSE)`,
 	    q`pdf(out)`,
-	    q`boxplot(t(df), ylim=c( min(df),max(df)+0.5 ), outline = FALSE, notch=TRUE, las=2, ylab="Enrichment Score")`,
-	    q`points(df[,1], pch=20, cex=1.5)`,
-	    q`text(seq(1:nrow(df)), df[,1]+0.5, bf, col="red")`,
+	    q`boxplot(t(df), ylim=c( min(df),max(df) ), outline = FALSE, notch=TRUE, las=2, ylab="Enrichment Score")`,
+	    q`for (i in 1:length(bf)){points(i,df[i,1], pch=20, cex=2, col=ifelse(bf[i] == "*", "red","black"))}`,
 	    q`dev.off()`);
     $R->stop();
 }
@@ -769,6 +768,7 @@ if ($program =~ m/(preprocess|all)/){
      	    $forks++; #count the number of child processes
      	} else { #child process
 	    $seed = $seed + $forks;
+	    printLog("seed for child process $forks : $seed");
 	    srand($seed);
 	    open (my $fh, "<$ldBlockFile") or die;
 	    open (my $index, "<", $idxFile) or die;
