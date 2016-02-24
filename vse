@@ -688,7 +688,7 @@ if ($program =~ m/(preprocess|all)/){
     my %blocks; #null LD blocks
 
     #Finding null tally file
-    my $null_tally_file = "$dataDir/ld_tally.txt.gz";
+    my $null_tally_file = "$dataDir/ld_tally.txt";
     die "$null_tally_file was not found in $dataDir! Is --dataDir correct?\n" if (!-e $null_tally_file);
 
     my %nullIds;
@@ -696,7 +696,7 @@ if ($program =~ m/(preprocess|all)/){
     #Load null tallies
     printLog("Using $r for LD cutoff. Use --r to change cutoff");
     printLog("Loading null tallies from $null_tally_file");
-    open (SNPS, "gunzip -c $null_tally_file |") or die "$!\n";
+    open (SNPS, "< $null_tally_file") or die "$!\n";
     my $h = <SNPS>;
     while(<SNPS>){ 
 	chomp;
@@ -769,7 +769,6 @@ if ($program =~ m/(preprocess|all)/){
      	    $forks++; #count the number of child processes
      	} else { #child process
 	    $seed = $seed + $forks;
-	    printLog("seed for child process $forks : $seed");
 	    srand($seed);
 	    open (my $fh, "<$ldBlockFile") or die;
 	    open (my $index, "<", $idxFile) or die;
