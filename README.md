@@ -10,18 +10,14 @@ VSE is a Perl command line tool to calculate the enrichment of associated varian
 ####Installation:
 **Step 1: Install Perl**
 
-You can get the Perl software from [their website](https://www.perl.org/get.html) and install. Version 5.14+ is required. Perl module Statistics::R must be installed. In typical linux environment, you can install by typing ```cpan Statistics::R``` in your command prompt.
-
-If you have issues, you can refer to [CPAN help page](http://www.cpan.org/modules/INSTALL.html) for more details.
+You can get the Perl software from [their website](https://www.perl.org/get.html) and install. Version 5.14+ is required. Perl module Statistics::R must be installed. In typical linux environment, you can install by typing ```cpanm Statistics::R``` in your command prompt. Please see at the end of this document for more help.
 
 **Step 2: Install R**
 
-R is also required for calculating the statistics and generating the plots. You can download R at [www.r-project.org](http://www.r-project.org). Version 3.1.1 is preferred, the later versions may work.
-
-The R package ```car``` is required. The package will be installed automatically if not installed. If connection to internet is not possible, see at the end of this document for more help.
+R is also required for calculating the statistics and generating the plots. You can download R at [www.r-project.org](http://www.r-project.org). Version 3.1.1 is preferred, the later versions may work. The R package ```car``` is required. The package will be installed automatically if not installed. If connection to internet is not possible, see at the end of this document for more help.
 
 
-**Step 4: Download VSE**
+**Step 3: Download VSE**
 
 You must download the file ``vse`` and the supporting 1000 Genome Project LD data from http://helab.uhnresearch.ca/?q=node/26. You can make the file ```vse``` excutable by the command ```chmod +x vse``` and move to your ```bin``` directory to make it executable from any location.
 
@@ -35,7 +31,8 @@ vse --tag     example.SNPs/NHGRI-BCa.bed \
     --ld      example.SNPs/ld_BCa.bed \
     --beds    example.beds/* \
     --dataDir VSE_data/ \
-    --output  vseOutput
+    --output  vseOutput \
+    --visualize
 ```
 
 #####Required parameters:
@@ -111,8 +108,8 @@ VSE produces multiple output files:
 4. Make sure that the input files are from the same genomic build (e.g., both SNPs and genomic features are in Hg19).
 4. Null size is a critical factor for reproducible results. Higher the null size better the normalcy of the distribution. Default of 500 is sufficiently large, but you may try 1000 in needed.
 
-####Further help for installing R package:
-the R packages ```car``` can be downloaded and installed from CRAN.
+####Further help for installing Perl module and R package:
+If the R package ```car``` can be installed automatically be VSE, you can install it manually from CRAN.
 
 In most cases, you can install the packages by:
 
@@ -124,3 +121,7 @@ In most cases, you can install the packages by:
   ```
 
 3. Exit R environment by typing ```q()```
+
+The Perl module ```Statistics::R``` can be installed by typing ```cpanm Statistics::R``` in the command line prompt. If ```cpanm``` command is not found, you can install ```cpanm``` by typing ```sudo cpan App::cpanminus``` in the command line prompt.
+
+If you have issues, you can refer to [CPAN help page](http://www.cpan.org/modules/INSTALL.html) for more details.
