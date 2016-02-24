@@ -156,10 +156,11 @@ srand($seed);
 #my $scriptPath = abs_path($0);
 #my @pathArr = split (/[\/\\]/, $scriptPath);
 #my $scriptDir = join ("/", @pathArr[0..$#pathArr-1]);
-open (LOG, ">$logFile");
+
 my @beds;
 my @labels;
 my $logFile = $outputPrefix.".log";
+open (LOG, ">$logFile");
 foreach my $bed (@bedsInput){
     if ($bed =~ m/,/){
 	my @arr = split(",", $bed);
