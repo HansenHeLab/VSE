@@ -108,6 +108,7 @@ VSE produces multiple output files:
 1. VSE is sensitive to the number of tagSNPs. From our trial and error tests, too low number of tagSNPs (below 15) provide imprecise result.
 2. The quality of ChIP-seq data is very important. We recommend users to confirm the quality of the ChIP-seq data and to only use data that are of good quality to avoid false enrichment. There are tools like ChIPQC or Chillin for quality control of ChIP-seq data.
 3. Make sure that you use the same r2 cutoff that you used to determine your LD SNPs.
+4. Make sure that the input files are from the same genomic build (e.g., both SNPs and genomic features are in Hg19).
 4. Null size is a critical factor for reproducible results. Higher the null size better the normalcy of the distribution. Default of 500 is sufficiently large, but you may try 1000 in needed.
 
 ####Further help for installing R package:
