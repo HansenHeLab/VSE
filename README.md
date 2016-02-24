@@ -109,17 +109,12 @@ VSE produces multiple output files:
 4. Null size is a critical factor for reproducible results. Higher the null size better the normalcy of the distribution. Default of 500 is sufficiently large, but you may try 1000 in needed.
 
 ####Further help for installing Perl module and R package:
-If the R package ```car``` can be installed automatically be VSE, you can install it manually from CRAN.
+If the R package ```car``` can not be installed automatically be VSE, you can install it manually from CRAN.
 
 In most cases, you can install the packages by:
 
 1. Go to R command line by typing ```R``` in your terminal
-2. type
-
-  ```
-  install.packages("car")
-  ```
-
+2. type ```install.packages("car")```
 3. Exit R environment by typing ```q()```
 
 The Perl module ```Statistics::R``` can be installed by typing ```cpanm Statistics::R``` in the command line prompt. If ```cpanm``` command is not found, you can install ```cpanm``` by typing ```sudo cpan App::cpanminus``` in the command line prompt.
