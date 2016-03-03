@@ -3,23 +3,23 @@ VSE is a Perl command line tool to calculate the enrichment of associated varian
 
 **Program requirement:**
 ```
-- Perl (5.14 or higher) with package Statistics::R
 - R (3.1.1) with package car
+- Perl (5.14 or higher) with package Statistics::R
 ```
 
 ####Installation:
-**Step 1: Install Perl**
 
-You can get the Perl software from [their website](https://www.perl.org/get.html) and install. Version 5.14+ is required. Perl module Statistics::R must be installed. In typical linux environment, you can install by typing ```cpanm Statistics::R``` in your command prompt. Please see at the end of this document for more help.
+**Step 1: Install R**
 
-**Step 2: Install R**
+R is required for calculating the statistics and generating the plots. You can download R at [www.r-project.org](http://www.r-project.org). Version 3.1.1 is preferred, the later versions are not tested but should work. The R package ```car``` is required. The package will be installed automatically if not installed. If it is not automatically installed or you get an error, see at the end of this document for more help.
 
-R is also required for calculating the statistics and generating the plots. You can download R at [www.r-project.org](http://www.r-project.org). Version 3.1.1 is preferred, the later versions may work. The R package ```car``` is required. The package will be installed automatically if not installed. If connection to internet is not possible, see at the end of this document for more help.
+**Step 2: Install Perl**
 
+You can get the Perl software from [their website](https://www.perl.org/get.html) and install. Version 5.14+ is required. Perl module Statistics::R must be installed. In typical linux environment, you can install by typing ```sudo cpanm Statistics::R``` in your command prompt. Please see at the end of this document for more help.
 
 **Step 3: Download VSE**
 
-You must download the file ``vse`` and the supporting 1000 Genome Project LD data from http://helab.uhnresearch.ca/?q=node/26. You can make the file ```vse``` excutable by the command ```chmod +x vse``` and move to your ```bin``` directory to make it executable from any location.
+You must download the file ``vse`` and the supporting 1000 Genome Project LD data from http://helab.uhnresearch.ca/?q=node/26. Please untar the downloaded file. Optionally, you can make the file ```vse``` excutable by the command ```chmod +x vse``` and add it to your ```$PATH``` to make it executable from any location.
 
 
 ###Using VSE
@@ -27,12 +27,7 @@ You must download the file ``vse`` and the supporting 1000 Genome Project LD dat
 VSE can be run minimally by the following command:
 
 ```
-vse --tag     example.SNPs/NHGRI-BCa.bed \
-    --ld      example.SNPs/ld_BCa.bed \
-    --beds    example.beds/* \
-    --dataDir VSE_data/ \
-    --output  vseOutput \
-    --visualize
+perl vse --tag example.SNPs/NHGRI-BCa.bed --ld example.SNPs/ld_BCa.bed --beds example.beds/* --dataDir VSE_data/ --output vseOutput --visualize
 ```
 
 #####Required parameters:
@@ -117,6 +112,6 @@ In most cases, you can install the packages by:
 2. type ```install.packages("car")```
 3. Exit R environment by typing ```q()```
 
-The Perl module ```Statistics::R``` can be installed by typing ```cpanm Statistics::R``` in the command line prompt. If ```cpanm``` command is not found, you can install ```cpanm``` by typing ```sudo cpan App::cpanminus``` in the command line prompt.
+The Perl module ```Statistics::R``` can be installed by typing ```sudo cpanm Statistics::R``` in the command line prompt. If ```cpanm``` command is not found, you can install ```cpanm``` by typing ```sudo cpan App::cpanminus``` in the command line prompt, and then type ```sudo cpanm Statistics::R```. You must have root access.
 
 If you have issues, you can refer to [CPAN help page](http://www.cpan.org/modules/INSTALL.html) for more details.
